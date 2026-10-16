@@ -2,7 +2,7 @@
 
 Five problems teams are solving right now with AI and data. Each one built twice, with the same data and, where a model is involved, the same model: once the usual way in Python, TypeScript or SQL, once in [Synsema](https://synsema.com). Then measured.
 
-This repository holds the code, the data, the results and the site ([why.synsema.com](https://why.synsema.com)). Every number on the site comes from a script here, and every claim below links to the file that backs it.
+This repository holds the code, the data, the results and the site ([why.synsema.dev](https://why.synsema.dev)). Every number on the site comes from a script here, and every claim below links to the file that backs it.
 
 | # | Case | The claim | Evidence |
 | --- | --- | --- | --- |
@@ -33,7 +33,7 @@ Small inputs are committed. Synthetic data (product catalog, invoices) is regene
 
 ## The site
 
-`site/` generates and serves why.synsema.com with Synsema: `synsema run site/build.syn`, then `synsema serve site/serve.syn`. Adding a case is one JSON file in `site/content/cases/`. See [`site/README.md`](site/README.md).
+`site/` generates and serves why.synsema.dev with Synsema: `synsema run site/build.syn`, then `synsema serve site/serve.syn`. Adding a case is one JSON file in `site/content/cases/`. See [`site/README.md`](site/README.md).
 
 ## Contributing a case
 

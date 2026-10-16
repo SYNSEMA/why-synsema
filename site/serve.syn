@@ -1,7 +1,7 @@
 intent: "Serve the Why Synsema? site (site/dist) with Synsema"
 
 -- Local:       synsema serve site/serve.syn                 → http://localhost:8120
--- Production:  synsema serve site/serve.syn --bind 0.0.0.0 --domain why.synsema.com --tls-auto
+-- Production:  synsema serve site/serve.syn --bind 0.0.0.0 --domain why.synsema.dev --tls-auto
 --              (see README: subdomain DNS pointing to the server, ports 80 and 443 open)
 require serve(8120)
 
