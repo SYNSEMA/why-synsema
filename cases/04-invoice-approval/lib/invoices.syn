@@ -1,0 +1,58 @@
+-- Invoice logic shared by process.syn (batch + measurement) and review.syn (site with the approval queue).
+use "./llm.syn" as llm
+use "./jev.syn" as jev
+
+let SYSTEM be "You extract data from invoices (OCR text, it may contain errors such as O for 0, l for 1, S for 5). Reply ONLY with JSON containing: supplier (text, as it appears at the top, in normal capitalization), number (text NNNN-NNNNNNNN), date (YYYY-MM-DD; dates are written day/month/year), currency (ARS or USD), subtotal, discount (0 if none), vat, total (numbers without thousands separators; the valid TOTAL DUE), and confidence: a number from 0 to 1 saying how sure you are that EVERYTHING extracted is correct."
+export let JEV_THRESHOLD be 0.85
+
+-- Tolerant supplier comparison (case, accents)
+task norm(s)
+    let t be lower(trim(text(s)))
+    each pair in [["á", "a"], ["é", "e"], ["í", "i"], ["ó", "o"], ["ú", "u"]]
+        set t to replace(t, pair[0], pair[1])
+    give t
+
+task num(x)
+    give when x == nothing then nothing otherwise number(text(x), nothing)
+
+export task process(f)
+    -- 1. Extraction
+    let r be llm.chat("deepseek", "deepseek-flash", SYSTEM, f.text, {"json": true, "max_tokens": 3000})
+    let e be when r.ok then llm.json_of_text(r.text) otherwise nothing
+    when e == nothing or not is_map(e)
+        give {"id": f.id, "extracted": nothing, "error": get(r, "error", "invalid JSON"), "difficulties": get(f, "difficulties", [])}
+    -- 2. Arithmetic check: (subtotal − discount) + vat = total
+    let sub be num(get(e, "subtotal", nothing))
+    let dis be num(get(e, "discount", 0))
+    let vat be num(get(e, "vat", nothing))
+    let tot be num(get(e, "total", nothing))
+    let sums_ok be sub != nothing and vat != nothing and tot != nothing and abs((sub - (when dis == nothing then 0 otherwise abs(dis))) + vat - tot) <= 0.05
+    -- 3. Jev's calibrated judgment on the document and the extraction (one call, four questions)
+    let j be jev.systemone({"document": f.text, "extracted": remove(e, "confidence")}, {
+        "total_ok": {"type": "noul", "instructions": "The extracted total is exactly the valid total due on the document"},
+        "date_ok": {"type": "noul", "instructions": "The extracted date (YYYY-MM-DD) is the issue date of the document, read as day/month/year"},
+        "supplier_ok": {"type": "noul", "instructions": "The extracted supplier is the company issuing the invoice"},
+        "ambiguous": {"type": "noul", "instructions": "The document has contradictory data, hand corrections, is a duplicate, or has reading errors that cast doubt on some value"}})
+    let p be when j.ok then j.answers otherwise {}
+    let pj be (k) => when contains(p, k) then p[k].noul otherwise 0
+    -- 4. Grading against the truth (measurement only; new invoices have no truth)
+    let v be get(f, "truth", nothing)
+    let correct be v != nothing and tot != nothing and abs(tot - v.total) <= 0.05 and get(e, "date", "") == v.date and norm(get(e, "supplier", "")) == norm(v.supplier) and get(e, "number", "") == v.number and get(e, "currency", "") == v.currency
+    -- Business rule: a duplicate or a hand-corrected total must be seen by a person even if it was read right
+    let diffs be get(f, "difficulties", [])
+    let must_review be "duplicate" in diffs or "total corrected by hand" in diffs
+    give {"id": f.id, "difficulties": diffs, "extracted": e, "must_review": must_review, "llm_confidence": num(get(e, "confidence", 0)), "sums_ok": sums_ok,
+          "jev_total": pj("total_ok"), "jev_date": pj("date_ok"), "jev_supplier": pj("supplier_ok"), "jev_ambiguous": pj("ambiguous"),
+          "jev_ms": j.ms, "llm_ms": r.ms, "correct": correct, "error": nothing}
+
+-- Decision: approve alone only when the sums and Jev agree; otherwise, a person decides
+export task decision(x)
+    when x.extracted == nothing
+        give {"action": "review", "reason": "could not extract"}
+    when not x.sums_ok
+        give {"action": "review", "reason": "the sums do not add up"}
+    when x.jev_ambiguous >= 0.5
+        give {"action": "review", "reason": `Jev finds the document ambiguous ({round_to(x.jev_ambiguous, 2)})`}
+    when x.jev_total < JEV_THRESHOLD or x.jev_date < JEV_THRESHOLD or x.jev_supplier < JEV_THRESHOLD
+        give {"action": "review", "reason": `Jev doubts a field (total {round_to(x.jev_total, 2)}, date {round_to(x.jev_date, 2)}, supplier {round_to(x.jev_supplier, 2)})`}
+    give {"action": "approve", "reason": "sums and Jev agree"}

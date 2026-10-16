@@ -1,0 +1,364 @@
+[
+ {
+  "id": 1,
+  "question": "Which book category has the highest average price (among categories with at least 5 books), and how many books does it have?",
+  "synsema": {
+   "ok": true,
+   "output": "category: New Adult\nbooks: 6\navg price: 46.38",
+   "code": "let books be csv_parse(read_file(\"./cases/02-llm-written-analytics/data/books.csv\"), {\"types\": {\"price\": \"float\"}})\nlet groups be summarize(books, \"category\", {\"n\": count(), \"mean_price\": mean_of(\"price\")})\nlet filtered be where(groups, (g) => g.n >= 5)\nlet sorted be sort_by(filtered, (g) => g.mean_price, desc = true)\nlet top be sorted[0]\nprint(`category: {top.category}`)\nprint(`books: {top.n}`)\nprint(`avg price: {round_to(top.mean_price, 2)}`)",
+   "attempts": 1,
+   "ms_llm": 2449,
+   "ms_run": 47,
+   "errors": [],
+   "model": "deepseek-flash",
+   "ms_total": 2537
+  },
+  "python": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 2184,
+   "ms_run": 3471,
+   "output": "New Adult 46.38 6",
+   "code": "import pandas as pd\n\nbooks = pd.read_csv('./cases/02-llm-written-analytics/data/books.csv')\nbooks['price'] = pd.to_numeric(books['price'])\n\nstats = books.groupby('category').agg(avg_price=('price', 'mean'), n=('price', 'size'))\nstats = stats[stats['n'] >= 5].sort_values('avg_price', ascending=False)\n\ntop = stats.iloc[0]\nprint(top.name, round(top['avg_price'], 2), int(top['n']))"
+  },
+  "python_docker": {
+   "ok": true,
+   "ms_run": 3126,
+   "output": "New Adult 46.38 6"
+  },
+  "sql": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 1850,
+   "ms_run": 42,
+   "output": "category  book_count  avg_price\nNew Adult           6  46.383333",
+   "code": "SELECT category, COUNT(*) AS book_count, AVG(CAST(price AS DOUBLE)) AS avg_price\nFROM read_csv_auto('./cases/02-llm-written-analytics/data/books.csv')\nGROUP BY category\nHAVING COUNT(*) >= 5\nORDER BY avg_price DESC\nLIMIT 1"
+  }
+ },
+ {
+  "id": 2,
+  "question": "Which 3 cities had the most rain in 2025, and what was their mean temperature?",
+  "synsema": {
+   "ok": true,
+   "output": "Quito: rain=3232.1 mm, mean temp=12.19 °C\nSan José: rain=2665.9 mm, mean temp=20.6 °C\nPanamá: rain=2630.6 mm, mean temp=26.58 °C\nMean temperature of top 3 rainiest cities: 19.79 °C",
+   "code": "let path be \"./cases/02-llm-written-analytics/data/weather_summary.csv\"\nlet raw be csv_parse(read_file(path), {\"types\": {\"temp_mean\": \"float\", \"temp_min\": \"float\", \"temp_max\": \"float\", \"rain_total_mm\": \"float\", \"wind_p95\": \"float\", \"missing_hours\": \"int\"}})\nlet sorted be sort_by(raw, (r) => r.rain_total_mm, desc = true)\nlet top3 be slice(sorted, 0, 3)\neach r in top3\n    print(`{r.city}: rain={round_to(r.rain_total_mm, 1)} mm, mean temp={round_to(r.temp_mean, 2)} °C`)\nlet avg be mean(apply((r) => r.temp_mean, top3))\nprint(`Mean temperature of top 3 rainiest cities: {round_to(avg, 2)} °C`)",
+   "attempts": 1,
+   "ms_llm": 2832,
+   "ms_run": 27,
+   "errors": [],
+   "model": "deepseek-flash",
+   "ms_total": 2899
+  },
+  "python": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 1550,
+   "ms_run": 8,
+   "output": "city  rain_total_mm  temp_mean\n   Quito         3232.1  12.186929\nSan José         2665.9  20.599897\n  Panamá         2630.6  26.575274",
+   "code": "import pandas as pd\nw = pd.read_csv('./cases/02-llm-written-analytics/data/weather_summary.csv')\nw['rain_total_mm'] = w['rain_total_mm'].astype(float)\nw['temp_mean'] = w['temp_mean'].astype(float)\ntop = w.nlargest(3, 'rain_total_mm')[['city', 'rain_total_mm', 'temp_mean']]\nprint(top.to_string(index=False))"
+  },
+  "python_docker": {
+   "ok": true,
+   "ms_run": 1975,
+   "output": "city  rain_total_mm  temp_mean\n   Quito         3232.1  12.186929\nSan José         2665.9  20.599897\n  Panamá         2630.6  26.575274"
+  },
+  "sql": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 1725,
+   "ms_run": 12,
+   "output": "city  rain_total_mm  temp_mean\n   Quito         3232.1  12.186929\nSan José         2665.9  20.599897\n  Panamá         2630.6  26.575274",
+   "code": "SELECT city, CAST(rain_total_mm AS DOUBLE) AS rain_total_mm, CAST(temp_mean AS DOUBLE) AS temp_mean\nFROM read_csv_auto('./cases/02-llm-written-analytics/data/weather_summary.csv')\nORDER BY rain_total_mm DESC\nLIMIT 3"
+  }
+ },
+ {
+  "id": 3,
+  "question": "On Steam, which country has the lowest median price index relative to the US, and what is that index?",
+  "synsema": {
+   "ok": true,
+   "output": "Country with lowest median price index relative to US: cl, median index: 54.95",
+   "code": "let raw be csv_parse(read_file(\"./cases/02-llm-written-analytics/data/steam_regional_prices.csv\"), {\"types\": {\"index\": \"float\"}})\nlet clean be drop_missing(raw, \"index\")\nlet grouped be summarize(clean, \"country\", {\"median_index\": median_of(\"index\")})\nlet sorted be sort_by(grouped, (r) => r.median_index)\nlet lowest be sorted[0]\nprint(`Country with lowest median price index relative to US: {lowest.country}, median index: {round_to(lowest.median_index, 2)}`)",
+   "attempts": 2,
+   "ms_llm": 9789,
+   "ms_run": 51,
+   "errors": [
+    "Parse error: <run_program>:2:9: Expected 'be' after variable name in let binding"
+   ],
+   "model": "deepseek-flash",
+   "ms_total": 9891
+  },
+  "python": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 2327,
+   "ms_run": 20,
+   "output": "cl 54.95",
+   "code": "import pandas as pd\n\ndf = pd.read_csv('./cases/02-llm-written-analytics/data/steam_regional_prices.csv')\ndf['index'] = pd.to_numeric(df['index'], errors='coerce')\n\nmed = df.groupby('country', as_index=False)['index'].median().sort_values('index', ascending=True)\nlowest = med.iloc[0]\n\nprint(lowest['country'], lowest['index'])"
+  },
+  "python_docker": {
+   "ok": true,
+   "ms_run": 1643,
+   "output": "cl 54.95"
+  },
+  "sql": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 1317,
+   "ms_run": 20,
+   "output": "country  median_index\n     cl         54.95",
+   "code": "SELECT country, median(CAST(index AS DOUBLE)) AS median_index\nFROM read_csv_auto('./cases/02-llm-written-analytics/data/steam_regional_prices.csv')\nWHERE country <> 'us'\nGROUP BY country\nORDER BY median_index ASC\nLIMIT 1"
+  }
+ },
+ {
+  "id": 4,
+  "question": "Which store appears most often as the cheapest, and what is the average discount on those games?",
+  "synsema": {
+   "ok": true,
+   "output": "Store appearing most often as cheapest: GameBillet\nTimes it was cheapest: 14\nAverage discount on those games: 79.21%\nTop 5 by frequency:\n  GameBillet: n=14, avg_discount=79.21%\n  GOG: n=8, avg_discount=81.97%\n  Steam: n=4, avg_discount=88.75%\n  Gamesplanet: n=3, avg_discount=87.4%\n  Epic Games Store: n=2, avg_discount=87.5%",
+   "code": "let rows be csv_parse(read_file(\"./cases/02-llm-written-analytics/data/game_prices.csv\"), {\"types\": {\"discount_pct\": \"float\", \"cheapest\": \"float\", \"list_price\": \"float\"}})\n\nlet stats be summarize(rows, \"cheapest_store\", {\"n\": count(), \"mean_disc\": mean_of(\"discount_pct\")})\n\nlet ranked be sort_by(stats, (r) => r.n, desc = true)\n\nlet top be ranked[0]\n\nprint(`Store appearing most often as cheapest: {top.cheapest_store}`)\nprint(`Times it was cheapest: {top.n}`)\nprint(`Average discount on those games: {round_to(top.mean_disc, 2)}%`)\nprint(\"Top 5 by frequency:\")\neach r in slice(ranked, 0, 5)\n    print(`  {r.cheapest_store}: n={r.n}, avg_discount={round_to(r.mean_disc, 2)}%`)",
+   "attempts": 1,
+   "ms_llm": 2479,
+   "ms_run": 37,
+   "errors": [],
+   "model": "deepseek-flash",
+   "ms_total": 2561
+  },
+  "python": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 1459,
+   "ms_run": 24,
+   "output": "GameBillet 14 79.21",
+   "code": "import pandas as pd\ndf = pd.read_csv('./cases/02-llm-written-analytics/data/game_prices.csv')\ntop = df['cheapest_store'].value_counts().idxmax()\nsub = df[df['cheapest_store'] == top]\nprint(top, len(sub), round(sub['discount_pct'].astype(float).mean(), 2))"
+  },
+  "python_docker": {
+   "ok": true,
+   "ms_run": 2282,
+   "output": "GameBillet 14 79.21"
+  },
+  "sql": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 1941,
+   "ms_run": 20,
+   "output": "cheapest_store  times_cheapest  avg_discount_pct\n    GameBillet              14         79.214286",
+   "code": "SELECT cheapest_store, COUNT(*) AS times_cheapest, AVG(CAST(discount_pct AS DOUBLE)) AS avg_discount_pct\nFROM read_csv_auto('./cases/02-llm-written-analytics/data/game_prices.csv')\nGROUP BY cheapest_store\nORDER BY times_cheapest DESC\nLIMIT 1;"
+  }
+ },
+ {
+  "id": 5,
+  "question": "In Brooklyn, at what hour are taxis slowest (lowest mph), and what is the tip percentage at that hour?",
+  "synsema": {
+   "ok": true,
+   "output": "Brooklyn: 24 hourly rows analyzed\nslowest hour: 15 at 9.21 mph\ntip_pct at that hour: 2.65%\ntrips in that hour: 71434",
+   "code": "let rows be parquet_read(read_file_bytes(\"./cases/02-llm-written-analytics/data/taxi_hour_borough.parquet\"))\nlet bkn be where(rows, (r) => r.borough == \"Brooklyn\")\nlet ranked be sort_by(bkn, (r) => r.mph)\nlet slowest be ranked[0]\nprint(`Brooklyn: {length(bkn)} hourly rows analyzed`)\nprint(`slowest hour: {slowest.hour} at {round_to(slowest.mph, 2)} mph`)\nprint(`tip_pct at that hour: {round_to(slowest.tip_pct, 2)}%`)\nprint(`trips in that hour: {slowest.trips}`)",
+   "attempts": 1,
+   "ms_llm": 2346,
+   "ms_run": 28,
+   "errors": [],
+   "model": "deepseek-flash",
+   "ms_total": 2425
+  },
+  "python": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 1559,
+   "ms_run": 856,
+   "output": "Hour: 15, mph: 9.21, tip_pct: 2.65",
+   "code": "import pandas as pd\n\ndf = pd.read_parquet('./cases/02-llm-written-analytics/data/taxi_hour_borough.parquet')\nbk = df[df['borough'] == 'Brooklyn']\nslowest = bk.loc[bk['mph'].idxmin()]\nprint(f\"Hour: {int(slowest['hour'])}, mph: {slowest['mph']:.2f}, tip_pct: {slowest['tip_pct']:.2f}\")"
+  },
+  "python_docker": {
+   "ok": true,
+   "ms_run": 2104,
+   "output": "Hour: 15, mph: 9.21, tip_pct: 2.65"
+  },
+  "sql": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 1330,
+   "ms_run": 38,
+   "output": "hour      mph  tip_pct\n   15 9.214378 2.645209",
+   "code": "SELECT hour, mph, tip_pct FROM read_parquet('./cases/02-llm-written-analytics/data/taxi_hour_borough.parquet') WHERE borough = 'Brooklyn' ORDER BY mph ASC LIMIT 1"
+  }
+ },
+ {
+  "id": 6,
+  "question": "What is the most frequent taxi route whose origin and destination are both NOT in the Upper East Side, and how many trips does it have?",
+  "synsema": {
+   "ok": true,
+   "output": "total routes considered: 18\nmost frequent non-UES route: Lincoln Square East -> Upper West Side South\nboroughs: Manhattan -> Manhattan\ntrips: 99579\ntop 5:\n  Lincoln Square East -> Upper West Side South: 99579 trips\n  Upper West Side South -> Upper West Side North: 96756 trips\n  Upper West Side South -> Lincoln Square East: 95850 trips\n  JFK Airport -> Outside of NYC: 87759 trips\n  Penn Station/Madison Sq West -> Times Sq/Theatre District: 84294 trips\nanswer: Lincoln Square East -> Upper West Side South with 99579 trips",
+   "code": "let rows be parquet_read(read_file_bytes(\"./cases/02-llm-written-analytics/data/taxi_top_routes.parquet\"))\n\nlet filt be where(rows, (r) => not contains(r.origin, \"Upper East Side\") and not contains(r.destination, \"Upper East Side\"))\n\nlet ranked be sort_by(filt, (r) => r.trips, desc = true)\n\nlet top be ranked[0]\n\nprint(`total routes considered: {length(filt)}`)\nprint(`most frequent non-UES route: {top.origin} -> {top.destination}`)\nprint(`boroughs: {top.origin_borough} -> {top.destination_borough}`)\nprint(`trips: {top.trips}`)\nprint(`top 5:`)\neach r in slice(ranked, 0, 5)\n    print(`  {r.origin} -> {r.destination}: {r.trips} trips`)\nprint(`answer: {top.origin} -> {top.destination} with {top.trips} trips`)",
+   "attempts": 1,
+   "ms_llm": 4198,
+   "ms_run": 31,
+   "errors": [],
+   "model": "deepseek-flash",
+   "ms_total": 4273
+  },
+  "python": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 2012,
+   "ms_run": 16,
+   "output": "Lincoln Square East -> Upper West Side South 99579",
+   "code": "import pandas as pd\n\ndf = pd.read_parquet('./cases/02-llm-written-analytics/data/taxi_top_routes.parquet')\nmask = ~df['origin'].str.contains('Upper East Side', na=False) & ~df['destination'].str.contains('Upper East Side', na=False)\nfilt = df[mask].sort_values('trips', ascending=False)\ntop = filt.iloc[0]\nprint(top['origin'], '->', top['destination'], int(top['trips']))"
+  },
+  "python_docker": {
+   "ok": true,
+   "ms_run": 1998,
+   "output": "Lincoln Square East -> Upper West Side South 99579"
+  },
+  "sql": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 1653,
+   "ms_run": 10,
+   "output": "origin           destination origin_borough destination_borough  trips\nLincoln Square East Upper West Side South      Manhattan           Manhattan  99579",
+   "code": "SELECT origin, destination, origin_borough, destination_borough, trips\nFROM read_parquet('./cases/02-llm-written-analytics/data/taxi_top_routes.parquet')\nWHERE origin NOT LIKE '%Upper East Side%'\n  AND destination NOT LIKE '%Upper East Side%'\nORDER BY trips DESC\nLIMIT 1"
+  }
+ },
+ {
+  "id": 7,
+  "question": "Which month had the highest average revenue per taxi trip, and how much was it?",
+  "synsema": {
+   "ok": true,
+   "output": "Month with highest average revenue per trip: 2025-12\nAverage revenue per trip: 31.3248\n  2025-08: 27.7059\n  2025-09: 28.6844\n  2025-10: 28.1329\n  2025-11: 26.8025\n  2025-12: 31.3248\n  2026-01: 29.6084\n  2026-02: 30.3993\n  2026-03: 30.2048\n  2026-04: 30.0315\n  2026-05: 30.4779\n  2026-06: 30.524\n  2026-07: 30.0538",
+   "code": "let monthly be parquet_read(read_file_bytes(\"./cases/02-llm-written-analytics/data/taxi_monthly.parquet\"))\nlet rows be apply((r) => {\"month\": r.month, \"rpm\": r.revenue / r.trips}, monthly)\nlet sorted be sort_by(rows, (r) => r.rpm, desc = true)\nlet best be sorted[0]\nprint(`Month with highest average revenue per trip: {best.month}`)\nprint(`Average revenue per trip: {round_to(best.rpm, 4)}`)\neach r in rows\n    print(`  {r.month}: {round_to(r.rpm, 4)}`)",
+   "attempts": 1,
+   "ms_llm": 2207,
+   "ms_run": 38,
+   "errors": [],
+   "model": "deepseek-flash",
+   "ms_total": 2293
+  },
+  "python": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 1724,
+   "ms_run": 5,
+   "output": "2025-12 31.3248",
+   "code": "import pandas as pd\n\ndf = pd.read_parquet('./cases/02-llm-written-analytics/data/taxi_monthly.parquet')\ndf['rev_per_trip'] = df['revenue'] / df['trips']\nbest = df.loc[df['rev_per_trip'].idxmax()]\nprint(best['month'], round(best['rev_per_trip'], 4))"
+  },
+  "python_docker": {
+   "ok": true,
+   "ms_run": 2144,
+   "output": "2025-12 31.3248"
+  },
+  "sql": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 1585,
+   "ms_run": 11,
+   "output": "month  revenue_per_trip\n2025-12         31.324771",
+   "code": "SELECT month, revenue / trips AS revenue_per_trip\nFROM read_parquet('./cases/02-llm-written-analytics/data/taxi_monthly.parquet')\nORDER BY revenue_per_trip DESC\nLIMIT 1;"
+  }
+ },
+ {
+  "id": 8,
+  "question": "In the demand model validation, on how many days did the model miss the actual value by more than 10%, and which day had the largest percentage error?",
+  "synsema": {
+   "ok": true,
+   "output": "days total: 28\ndays with model error > 10%: 7\nlargest error: 40.33% on 2026-07-05 (actual 81803.0, model 114794.0)\nbad days: [\"2026-07-04\", \"2026-07-05\", \"2026-07-07\", \"2026-07-08\", \"2026-07-09\", \"2026-07-10\", \"2026-07-11\"]",
+   "code": "let rows be csv_parse(read_file(\"./cases/02-llm-written-analytics/data/demand_validation.csv\"), {\"types\": {\"actual\": \"float\", \"model\": \"float\", \"baseline\": \"float\"}})\n\nlet scored be apply((r) => merge(r, {\"err_pct\": abs(r.model - r.actual) / r.actual * 100}), rows)\n\nlet bad be where(scored, (r) => r.err_pct > 10)\n\nlet worst be scored[0]\neach r in scored\n    when r.err_pct > worst.err_pct\n        set worst to r\n\nprint(`days total: {length(rows)}`)\nprint(`days with model error > 10%: {length(bad)}`)\nprint(`largest error: {round_to(worst.err_pct, 2)}% on {worst.date} (actual {worst.actual}, model {worst.model})`)\nprint(`bad days: {apply((r) => r.date, bad)}`)",
+   "attempts": 1,
+   "ms_llm": 2749,
+   "ms_run": 27,
+   "errors": [],
+   "model": "deepseek-flash",
+   "ms_total": 2817
+  },
+  "python": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 2344,
+   "ms_run": 33,
+   "output": "Days missed >10%: 7\nTotal days: 28\nLargest % error day: 2026-07-05 APE: 40.33 actual: 81803 model: 114794",
+   "code": "import pandas as pd\ndf = pd.read_csv('./cases/02-llm-written-analytics/data/demand_validation.csv')\ndf['actual'] = pd.to_numeric(df['actual'].astype(str).str.replace(',', ''), errors='coerce')\ndf['model'] = pd.to_numeric(df['model'].astype(str).str.replace(',', ''), errors='coerce')\ndf['ape'] = (df['model'] - df['actual']).abs() / df['actual'] * 100\nmissed = df[df['ape'] > 10]\nprint(\"Days missed >10%:\", len(missed))\nprint(\"Total days:\", len(df))\nworst = df.loc[df['ape'].idxmax()]\nprint(\"Largest % error day:\", worst['date'], \"APE:\", round(worst['ape'], 2), \"actual:\", worst['actual'], \"model:\", worst['model'])"
+  },
+  "python_docker": {
+   "ok": true,
+   "ms_run": 1882,
+   "output": "Days missed >10%: 7\nTotal days: 28\nLargest % error day: 2026-07-05 APE: 40.33 actual: 81803 model: 114794"
+  },
+  "sql": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 2349,
+   "ms_run": 70,
+   "output": "days_over_10pct  worst_day  worst_pct_error\n               7 2026-07-05            40.33",
+   "code": "SELECT \n  COUNT(*) FILTER (WHERE ABS(CAST(model AS DOUBLE) - CAST(actual AS DOUBLE)) / CAST(actual AS DOUBLE) > 0.10) AS days_over_10pct,\n  (SELECT date FROM read_csv_auto('./cases/02-llm-written-analytics/data/demand_validation.csv') \n   ORDER BY ABS(CAST(model AS DOUBLE) - CAST(actual AS DOUBLE)) / CAST(actual AS DOUBLE) DESC LIMIT 1) AS worst_day,\n  (SELECT ROUND(MAX(ABS(CAST(model AS DOUBLE) - CAST(actual AS DOUBLE)) / CAST(actual AS DOUBLE)) * 100, 2) \n   FROM read_csv_auto('./cases/02-llm-written-analytics/data/demand_validation.csv')) AS worst_pct_error\nFROM read_csv_auto('./cases/02-llm-written-analytics/data/demand_validation.csv');"
+  }
+ },
+ {
+  "id": 9,
+  "question": "In the trades, what was the volume-weighted average price (VWAP) of BTC on each exchange, and the difference between them in basis points?",
+  "synsema": {
+   "ok": true,
+   "output": "binance: trades=5044 volume=16.9611 vwap=82607.150207\ncoinbase: trades=426 volume=3.6953 vwap=82522.701902\nhigh: binance 82607.150207\nlow: coinbase 82522.701902\nabs difference: 84.448304 USD\ndifference in basis points (relative to midpoint): 10.23 bps",
+   "code": "let trades be jsonl_decode(read_file(\"./cases/02-llm-written-analytics/data/trades.jsonl\"))\n\nlet btc be where(trades, (r) => r.pair == \"BTC\")\n\nlet with_notional be apply((r) => merge(r, {\"notional\": r.price * r.size}), btc)\n\nlet grouped be summarize(with_notional, \"exchange\", {\"notional\": sum_of(\"notional\"), \"volume\": sum_of(\"size\"), \"trades\": count()})\n\nlet priced be apply((r) => merge(r, {\"vwap\": r.notional / r.volume}), grouped)\n\neach r in priced\n    print(`{r.exchange}: trades={r.trades} volume={round_to(r.volume, 4)} vwap={round_to(r.vwap, 6)}`)\n\nlet sorted be sort_by(priced, (r) => r.vwap)\nlet low be sorted[0]\nlet high be sorted[-1]\nlet mid be (low.vwap + high.vwap) / 2\nlet diff be high.vwap - low.vwap\nlet bps be round_to(diff / mid * 10000, 2)\n\nprint(`high: {high.exchange} {round_to(high.vwap, 6)}`)\nprint(`low: {low.exchange} {round_to(low.vwap, 6)}`)\nprint(`abs difference: {round_to(diff, 6)} USD`)\nprint(`difference in basis points (relative to midpoint): {bps} bps`)",
+   "attempts": 1,
+   "ms_llm": 5790,
+   "ms_run": 48,
+   "errors": [],
+   "model": "deepseek-flash",
+   "ms_total": 5878
+  },
+  "python": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 4612,
+   "ms_run": 64,
+   "output": "vwap     volume\nexchange                         \ncoinbase  82522.701902   3.695343\nbinance   82607.150207  16.961090\nVWAP difference: 84.45 USD\nVWAP difference in basis points: 10.23 bps",
+   "code": "import pandas as pd\n\ndf = pd.read_json('./cases/02-llm-written-analytics/data/trades.jsonl', lines=True)\nbtc = df[df['pair'] == 'BTC'].copy()\nbtc['notional'] = btc['price'] * btc['size']\n\nvwap = (\n    btc.groupby('exchange')\n       .agg(volume=('size', 'sum'), notional=('notional', 'sum'))\n       .assign(vwap=lambda x: x['notional'] / x['volume'])\n       .sort_values('vwap')\n)\n\nprint(vwap[['vwap', 'volume']])\n\nif len(vwap) >= 2:\n    low = vwap['vwap'].iloc[0]\n    high = vwap['vwap'].iloc[-1]\n    diff_bps = (high - low) / low * 10000\n    print(f\"VWAP difference: {high - low:.2f} USD\")\n    print(f\"VWAP difference in basis points: {diff_bps:.2f} bps\")"
+  },
+  "python_docker": {
+   "ok": true,
+   "ms_run": 1414,
+   "output": "vwap     volume\nexchange                         \ncoinbase  82522.701902   3.695343\nbinance   82607.150207  16.961090\nVWAP difference: 84.45 USD\nVWAP difference in basis points: 10.23 bps"
+  },
+  "sql": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 4010,
+   "ms_run": 86,
+   "output": "exchange_a exchange_b       vwap_a       vwap_b  diff_bps\n   binance   coinbase 82607.150207 82522.701902 10.228109",
+   "code": "WITH v AS (\n  SELECT exchange, sum(price*size)/sum(size) AS vwap\n  FROM read_json_auto('./cases/02-llm-written-analytics/data/trades.jsonl')\n  WHERE pair = 'BTC'\n  GROUP BY exchange\n)\nSELECT a.exchange AS exchange_a, b.exchange AS exchange_b,\n       a.vwap AS vwap_a, b.vwap AS vwap_b,\n       abs(a.vwap - b.vwap) / ((a.vwap + b.vwap)/2) * 10000 AS diff_bps\nFROM v a, v b\nWHERE a.exchange < b.exchange"
+  }
+ },
+ {
+  "id": 10,
+  "question": "In the teacher labels, what percentage matches the true label, split by source?",
+  "synsema": {
+   "ok": true,
+   "output": "glm-5.3: 77/106 = 72.64%\njev: 345/417 = 82.73%\noverall: 422/523 = 80.69%",
+   "code": "let rows be csv_parse(read_file(\"./cases/02-llm-written-analytics/data/teacher_labels.csv\"))\nlet matched be apply((r) => merge(r, {\"match\": when r.teacher == r.truth then 1 otherwise 0}), rows)\nlet grp be summarize(matched, \"source\", {\"n\": count(), \"matches\": sum_of(\"match\"), \"mean\": mean_of(\"match\")})\nlet out be sort_by(grp, (r) => r.source)\neach r in out\n    print(`{r.source}: {r.matches}/{r.n} = {round_to(r.mean * 100, 2)}%`)\nprint(`overall: {sum(collect(matched, \"match\"))}/{length(matched)} = {round_to(mean(collect(matched, \"match\")) * 100, 2)}%`)",
+   "attempts": 1,
+   "ms_llm": 4790,
+   "ms_run": 27,
+   "errors": [],
+   "model": "deepseek-flash",
+   "ms_total": 4861
+  },
+  "python": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 2376,
+   "ms_run": 37,
+   "output": "Match percentage (truth == teacher) split by source:\n         match_pct  count\nsource                   \nglm-5.3  72.641509    106\njev      82.733813    417\n\nOverall match percentage: 80.68833652007649\nglm-5.3: 72.64% (77/106)\njev: 82.73% (345/417)",
+   "code": "import pandas as pd\n\ndf = pd.read_csv('./cases/02-llm-written-analytics/data/teacher_labels.csv')\ndf['match'] = df['truth'] == df['teacher']\n\nresult = df.groupby('source')['match'].agg(['mean', 'count'])\nresult['match_pct'] = result['mean'] * 100\n\nprint(\"Match percentage (truth == teacher) split by source:\")\nprint(result[['match_pct', 'count']])\nprint()\nprint(\"Overall match percentage:\", df['match'].mean() * 100)\n\nfor src, row in result.iterrows():\n    print(f\"{src}: {row['match_pct']:.2f}% ({int(row['mean']*row['count'])}/{int(row['count'])})\")"
+  },
+  "python_docker": {
+   "ok": true,
+   "ms_run": 1427,
+   "output": "Match percentage (truth == teacher) split by source:\n         match_pct  count\nsource                   \nglm-5.3  72.641509    106\njev      82.733813    417\n\nOverall match percentage: 80.68833652007649\nglm-5.3: 72.64% (77/106)\njev: 82.73% (345/417)"
+  },
+  "sql": {
+   "ok": true,
+   "attempts": 1,
+   "ms_llm": 2356,
+   "ms_run": 50,
+   "output": "source  total  matched  pct_match\nglm-5.3    106     77.0      72.64\n    jev    417    345.0      82.73",
+   "code": "SELECT source, COUNT(*) AS total, SUM(CASE WHEN truth = teacher THEN 1 ELSE 0 END) AS matched, ROUND(100.0 * SUM(CASE WHEN truth = teacher THEN 1 ELSE 0 END) / COUNT(*), 2) AS pct_match FROM read_csv_auto('./cases/02-llm-written-analytics/data/teacher_labels.csv') GROUP BY source ORDER BY source;"
+  }
+ }
+]

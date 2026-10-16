@@ -1,0 +1,36 @@
+-- HTTP client for Jev (TypeSafe System One): POST /v1/systemone. The key is JEV_API_KEY in .env.
+-- It exists because Synsema's native `judge` block returns OFFLINE inside parallel_map workers
+-- (engine 0.6.44); over HTTP it works in any worker.
+
+task key()
+    require secret("JEV_API_KEY")
+    give secret("JEV_API_KEY")
+
+-- state: text or map · questions: {name: {type: "noul"|"choice"|"score"|"box", instructions, criteria?}}
+-- → {ok, answers, ms, error}
+export task systemone(state, questions, model = "jev-latest")
+    require net("api.typesafe.ai")
+    require time
+    let t0 be now()
+    let n be 0
+    let last be "no attempts"
+    while n < 4
+        try
+            let r be http_post("https://api.typesafe.ai/v1/systemone", {"model": model, "state": state, "questions": questions}, {"Authorization": bearer(key())}, 60)
+            when r.ok
+                give {"ok": true, "answers": (json of r).answers, "ms": round((now() - t0) * 1000), "error": nothing}
+            set last to `HTTP {r.status}: {slice(r.body, 0, 200)}`
+            when r.status != 429 and r.status < 500
+                give {"ok": false, "answers": nothing, "ms": round((now() - t0) * 1000), "error": last}
+        recover err
+            set last to err
+        sleep(2 ** n)
+        set n to n + 1
+    give {"ok": false, "answers": nothing, "ms": round((now() - t0) * 1000), "error": last}
+
+-- Shortcut: one choice question → {choice, confidence, probabilities} or nothing
+export task choose(state, instructions, options)
+    let r be systemone(state, {"q": {"type": "choice", "instructions": instructions, "criteria": options}})
+    when not r.ok
+        give nothing
+    give r.answers.q

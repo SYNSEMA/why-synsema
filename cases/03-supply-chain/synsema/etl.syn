@@ -1,0 +1,29 @@
+intent: "ETL: daily weather for 5 cities (last 30 days) from Open-Meteo to Parquet + CSV summary"
+
+use "./helpers.syn" as helpers
+require net("archive-api.open-meteo.com")
+require file.write("./cases/03-supply-chain/results/*")
+
+let CITIES be [{"c": "Buenos Aires", "lat": -34.61, "lon": -58.38}, {"c": "Santiago", "lat": -33.45, "lon": -70.67},
+               {"c": "Lima", "lat": -12.05, "lon": -77.04}, {"c": "Bogotá", "lat": 4.71, "lon": -74.07}, {"c": "Madrid", "lat": 40.42, "lon": -3.70}]
+let END be date("2026-10-10")
+let START be END - duration(days = 29)
+
+task fetch(x)
+    let n be 0
+    while n < 4
+        let r be http_get("https://archive-api.open-meteo.com/v1/archive", {}, {"latitude": text(x.lat), "longitude": text(x.lon),
+            "start_date": text(START), "end_date": text(END), "daily": "temperature_2m_max,precipitation_sum", "timezone": "auto"}, 30)
+        when r.ok
+            let d be (json of r).daily
+            give apply((e) => {"city": x.c, "date": e.item, "tmax": d.temperature_2m_max[e.index], "rain": d.precipitation_sum[e.index]}, enumerate(d.time))
+        set n to n + 1
+    raise(`could not fetch {x.c}`)
+
+let rows be flatten(parallel_map(fetch, CITIES, 5))
+write_file("./cases/03-supply-chain/results/weather_synsema.parquet", parquet_write(rows))
+let summary be apply((r) => merge(r, {"tmax_mean": helpers.round1(r.tmax_mean)}), summarize(rows, "city", {"tmax_mean": mean_of("tmax"), "rain_total": sum_of("rain")}))
+write_file("./cases/03-supply-chain/results/summary_synsema.csv", csv_encode(summary))
+each r in summary
+    print(`{r.city}: {r.tmax_mean} °C, {round_to(r.rain_total, 1)} mm`)
+print(`what the imported module can do: {helpers.capabilities()}`)

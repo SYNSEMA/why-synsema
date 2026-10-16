@@ -1,0 +1,110 @@
+intent: "Catalog MCP server in Synsema: confidential fields are labeled and no output publishes them without a written declassify"
+
+-- Run with labels on (without --labels, private() fails on purpose):
+--   synsema serve --labels cases/01-mcp-servers/servers/mcp.syn
+-- MCP over HTTP (streamable-http, JSON responses, stateless): POST http://localhost:8103/mcp
+
+require serve(8103)
+require file.read("./cases/01-mcp-servers/data/*")
+
+-- Confidential fields are labeled ONCE, at load, and live apart from the public ones.
+-- Why apart: where/apply/index_of over a list that CONTAINS something private return a private result
+-- as a whole (labels are conservative: they never let anything slip). Keeping public and confidential
+-- data separate is also the right design: public lookups never touch private values.
+task load_public()
+    let raw be json_decode(read_file("./cases/01-mcp-servers/data/catalog.json"))
+    give apply((p) => {"id": p.id, "product": p.product, "category": p.category, "list_price_usd": p.list_price_usd, "stock": p.stock}, raw)
+
+task load_confidential()
+    let raw be json_decode(read_file("./cases/01-mcp-servers/data/catalog.json"))
+    let conf be {}
+    each p in raw
+        set conf[text(p.id)] to {"cost_usd": private(p.cost_usd, "company"), "supplier": private(p.supplier, "company"),
+            "min_margin_pct": private(p.min_margin_pct, "company"), "max_discount_pct": private(p.max_discount_pct, "company"),
+            "internal_note": private(p.internal_note, "company")}
+    give conf
+
+let PUBLIC be load_public()
+let CONFIDENTIAL be load_confidential()
+
+task find(id)
+    let found be where(PUBLIC, (p) => p.id == id)
+    when length(found) == 0
+        raise(`no product with id {id}`)
+    give found[0]
+
+-- ---- Tools ----
+
+task t_list_products(args)
+    let cat be get(args, "category", "")
+    give where(PUBLIC, (p) => cat == "" or p.category == cat)
+
+task t_get_product(args)
+    give find(args.id)
+
+-- Cost and margins are used inside; the result leaves through declassify, with the reason in writing
+task t_quote(args)
+    let p be find(args.id)                         -- public
+    let c be CONFIDENTIAL[text(args.id)]           -- labeled "company"
+    let quantity be args.quantity
+    let requested be get(args, "discount_pct", 0)
+    let discount be min(max(requested, 0), c.max_discount_pct)
+    let unit be p.list_price_usd * (1 - discount / 100)
+    let floor_price be c.cost_usd * (1 + c.min_margin_pct / 100)
+    let adjusted be unit < floor_price
+    let final be max(unit, floor_price)
+    give {"product": p.product, "quantity": quantity,
+          "discount_applied_pct": declassify(when adjusted then nothing otherwise discount, "the granted discount is shown to the customer"),
+          "unit_price_usd": declassify(round_to(final, 2), "quoted sale price: this is what the customer is told"),
+          "total_usd": declassify(round_to(round_to(final, 2) * quantity, 2), "quote total"),
+          "raised_to_minimum": declassify(adjusted, "the customer must know the full discount was not applied")}
+
+-- (Added later, for the purchasing team.) The same slip as in Python: returns the whole record.
+-- In Synsema it never reaches the model: the HTTP response is a public output and refuses labeled fields.
+task t_product_detail(args)
+    give merge(find(args.id), CONFIDENTIAL[text(args.id)])
+
+let TOOLS be [
+    {"name": "list_products", "description": "List products (public fields), optionally filtered by category.",
+     "inputSchema": {"type": "object", "properties": {"category": {"type": "string"}}}},
+    {"name": "get_product", "description": "Show one product (public fields).",
+     "inputSchema": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}},
+    {"name": "quote", "description": "Quote on the server; cost and margins never leave.",
+     "inputSchema": {"type": "object", "properties": {"id": {"type": "integer"}, "quantity": {"type": "integer"}, "discount_pct": {"type": "number"}}, "required": ["id", "quantity"]}},
+    {"name": "product_detail", "description": "(Added later, for the purchasing team.) Full product detail.",
+     "inputSchema": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]}}]
+
+task call_tool_named(name, args)
+    when name == "list_products"
+        give t_list_products(args)
+    when name == "get_product"
+        give t_get_product(args)
+    when name == "quote"
+        give t_quote(args)
+    when name == "product_detail"
+        give t_product_detail(args)
+    raise(`unknown tool: {name}`)
+
+-- MCP result: the content goes as JSON text (what the model reads) and as structuredContent
+task result(id, value)
+    give {"jsonrpc": "2.0", "id": id, "result": {"content": [{"type": "text", "text": json_encode(value)}], "structuredContent": {"result": value}, "isError": false}}
+
+serve on 8103
+    route "POST /mcp"
+        let m be json_decode(request.body, nothing)
+        when m == nothing
+            give respond(json_encode({"jsonrpc": "2.0", "id": nothing, "error": {"code": -32700, "message": "invalid JSON"}}), "application/json", 400)
+        let id be get(m, "id", nothing)
+        when m.method == "initialize"
+            give {"jsonrpc": "2.0", "id": id, "result": {"protocolVersion": get(get(m, "params", {}), "protocolVersion", "2025-06-18"),
+                  "capabilities": {"tools": {}}, "serverInfo": {"name": "catalog-synsema", "version": "1.0"},
+                  "instructions": "Product catalog for sales support."}}
+        when starts_with(m.method, "notifications/")
+            give respond("", "application/json", 202)
+        when m.method == "ping"
+            give {"jsonrpc": "2.0", "id": id, "result": {}}
+        when m.method == "tools/list"
+            give {"jsonrpc": "2.0", "id": id, "result": {"tools": TOOLS}}
+        when m.method == "tools/call"
+            give result(id, call_tool_named(m.params.name, get(m.params, "arguments", {})))
+        give {"jsonrpc": "2.0", "id": id, "error": {"code": -32601, "message": `unsupported method: {m.method}`}}

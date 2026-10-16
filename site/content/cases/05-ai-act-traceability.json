@@ -1,0 +1,244 @@
+{
+ "id": "ai-act-traceability",
+ "orden": 5,
+ "fuente": "cases/05-ai-act-traceability",
+ "grafico": {
+  "tipo": "donas",
+  "total": 2,
+  "datos": [
+   {
+    "etiqueta": {
+     "en": "Python, manual manifest",
+     "es": "Python, manifiesto manual"
+    },
+    "valor": 1,
+    "synsema": false
+   },
+   {
+    "etiqueta": {
+     "en": "Synsema, engine lineage",
+     "es": "Synsema, lineage del motor"
+    },
+    "valor": 2,
+    "synsema": true
+   }
+  ]
+ },
+ "en": {
+  "titulo": "Training data you cannot hide",
+  "numero": "1 of 2",
+  "numero_texto": "data files recorded by the usual manifest. Synsema recorded 2 of 2.",
+  "titular": "Someone added training data off the books. Python's manifest missed it. Synsema's signed receipt did not.",
+  "pregunta": "If someone adds data to training without documenting it, does it get recorded?",
+  "grafico_titulo": "Data files recorded, out of the 2 the training actually used",
+  "grafico_nota": "Same training run, same undocumented read of extra_data.csv (80 rows).",
+  "problema": [
+   "Since August 2026 the EU AI Act asks high-risk systems to document where training data came from and how it was prepared, and to be able to reconstruct what produced each model.",
+   "Today that is a logger, MLflow or DVC, plus the discipline that everyone uses it every time. One direct read outside the helper and the record is incomplete, with nobody lying."
+  ],
+  "construimos": [
+   "The genre classifier from another case, trained twice: Python with the usual manual manifest (a read helper that hashes every file), and Synsema with the engine's lineage and a signed receipt.",
+   "In both, a realistic slip: besides the documented data, someone loads extra_data.csv directly.",
+   "An independent verifier that needs no private key: signature, declared result, model hash and the hash of every input."
+  ],
+  "tablas": [
+   {
+    "titulo": "Same training, two records",
+    "columnas": [
+     "",
+     "Python, manual manifest",
+     "Synsema, lineage + receipt"
+    ],
+    "filas": [
+     [
+      "Training rows",
+      "~|498 (418 + 80 extra)",
+      "~|498 (418 + 80 extra)"
+     ],
+     [
+      "Files the record lists",
+      "-|1: the extra read skipped the helper",
+      "+|2: the engine records every read"
+     ],
+     [
+      "Who writes the record",
+      "-|the program, if it remembers",
+      "+|the Synsema engine"
+     ],
+     [
+      "Signature",
+      "-|none unless added by hand",
+      "+|ed25519, W3C Data Integrity, did:key issuer"
+     ],
+     [
+      "Data sheet",
+      "-|by hand",
+      "+|generated from the lineage"
+     ]
+    ]
+   },
+   {
+    "titulo": "Tamper tests (verifier, no private key)",
+    "columnas": [
+     "Case",
+     "Result"
+    ],
+    "filas": [
+     [
+      "Everything as it was",
+      "+|VERIFIED: signature, result, model and data match"
+     ],
+     [
+      "Change one label in the training file",
+      "+|detected, NOT VERIFIED: the file changed"
+     ],
+     [
+      "Edit the receipt to hide extra_data.csv",
+      "+|detected, NOT VERIFIED: invalid signature"
+     ]
+    ]
+   }
+  ],
+  "por_que": [
+   "lineage() is written by the engine, not by the program. Every read from outside is recorded with its sha256, and the program cannot add, edit or drop an entry.",
+   "receipt() turns it into a Verifiable Credential signed with ed25519. Anyone can verify it with the issuer's public DID.",
+   "The data sheet is generated from what actually happened, not from what someone remembered to log."
+  ],
+  "limites": [
+   "The lineage records what the program reads, not what it writes. The model hash is added to the signed result by hand.",
+   "Proving a file did not change does not prove it was lawful to use (license, consent). That stays with whoever builds the dataset.",
+   "The demo signing key is a test key. In production it lives in a secret manager and its DID is published."
+  ]
+ },
+ "es": {
+  "titulo": "Datos de entrenamiento que no se pueden esconder",
+  "numero": "1 de 2",
+  "numero_texto": "archivos de datos que registró el manifiesto habitual. Synsema registró 2 de 2.",
+  "titular": "Alguien sumó datos al entrenamiento sin documentarlos. El manifiesto de Python no lo vio. El recibo firmado de Synsema, sí.",
+  "pregunta": "Si alguien suma datos al entrenamiento sin documentarlos, ¿queda registrado?",
+  "grafico_titulo": "Archivos de datos registrados, de los 2 que el entrenamiento usó de verdad",
+  "grafico_nota": "El mismo entrenamiento, la misma lectura no documentada de extra_data.csv (80 filas).",
+  "problema": [
+   "Desde agosto de 2026 la ley de IA de la UE pide a los sistemas de alto riesgo documentar de dónde salieron los datos de entrenamiento y cómo se prepararon, y poder reconstruir qué produjo cada modelo.",
+   "Hoy eso es un logger, MLflow o DVC, más la disciplina de que todos lo usen siempre. Una lectura directa por fuera del helper y el registro queda incompleto, sin que nadie mienta."
+  ],
+  "construimos": [
+   "El clasificador de géneros de otro caso, entrenado dos veces: Python con el manifiesto manual habitual (un helper de lectura que calcula el hash de cada archivo) y Synsema con el lineage del motor y un recibo firmado.",
+   "En los dos, un descuido realista: además de los datos documentados, alguien carga extra_data.csv directamente.",
+   "Un verificador independiente que no necesita clave privada: firma, resultado declarado, hash del modelo y hash de cada entrada."
+  ],
+  "tablas": [
+   {
+    "titulo": "El mismo entrenamiento, dos registros",
+    "columnas": [
+     "",
+     "Python, manifiesto manual",
+     "Synsema, lineage + recibo"
+    ],
+    "filas": [
+     [
+      "Filas de entrenamiento",
+      "~|498 (418 + 80 extra)",
+      "~|498 (418 + 80 extra)"
+     ],
+     [
+      "Archivos que lista el registro",
+      "-|1: la lectura extra no pasó por el helper",
+      "+|2: el motor registra toda lectura"
+     ],
+     [
+      "Quién escribe el registro",
+      "-|el programa, si se acuerda",
+      "+|el motor de Synsema"
+     ],
+     [
+      "Firma",
+      "-|ninguna, salvo que se agregue a mano",
+      "+|ed25519, W3C Data Integrity, emisor did:key"
+     ],
+     [
+      "Ficha de datos",
+      "-|a mano",
+      "+|generada desde el lineage"
+     ]
+    ]
+   },
+   {
+    "titulo": "Pruebas de manipulación (verificador, sin clave privada)",
+    "columnas": [
+     "Caso",
+     "Resultado"
+    ],
+    "filas": [
+     [
+      "Todo tal cual",
+      "+|VERIFICADO: firma, resultado, modelo y datos coinciden"
+     ],
+     [
+      "Cambiar una etiqueta en el archivo de entrenamiento",
+      "+|detectado, NO VERIFICADO: el archivo cambió"
+     ],
+     [
+      "Editar el recibo para ocultar extra_data.csv",
+      "+|detectado, NO VERIFICADO: firma inválida"
+     ]
+    ]
+   }
+  ],
+  "por_que": [
+   "lineage() lo escribe el motor, no el programa. Cada lectura de afuera queda registrada con su sha256, y el programa no puede agregar, editar ni quitar entradas.",
+   "receipt() lo convierte en una Verifiable Credential firmada con ed25519. Cualquiera la verifica con el DID público del emisor.",
+   "La ficha de datos se genera a partir de lo que pasó de verdad, no de lo que alguien se acordó de registrar."
+  ],
+  "limites": [
+   "El lineage registra lo que el programa lee, no lo que escribe. El hash del modelo se agrega a mano al resultado firmado.",
+   "Probar que un archivo no cambió no prueba que fuera lícito usarlo (licencia, consentimiento). Eso sigue siendo de quien arma el dataset.",
+   "La clave de firma de la demo es de prueba. En producción vive en un gestor de secretos y se publica su DID."
+  ]
+ },
+ "codigo": [
+  {
+   "lado": "otro",
+   "archivo": "cases/05-ai-act-traceability/python/train.py",
+   "desde": "def read(path)",
+   "hasta": "extra = pd.read_csv",
+   "titulo": {
+    "en": "Python: the record depends on everyone using the helper",
+    "es": "Python: el registro depende de que todos usen el helper"
+   },
+   "nota": {
+    "en": "The read of extra_data.csv skips read() and is never recorded.",
+    "es": "La lectura de extra_data.csv no pasa por read() y nunca queda registrada."
+   }
+  },
+  {
+   "lado": "synsema",
+   "archivo": "cases/05-ai-act-traceability/train.syn",
+   "desde": "-- 2. The off-the-books read",
+   "hasta": "let extra be",
+   "titulo": {
+    "en": "Synsema: the same read, recorded by the engine",
+    "es": "Synsema: la misma lectura, registrada por el motor"
+   },
+   "nota": {
+    "en": "The program does not write the record. The engine does.",
+    "es": "El programa no escribe el registro. Lo hace el motor."
+   }
+  },
+  {
+   "lado": "synsema",
+   "archivo": "cases/05-ai-act-traceability/train.syn",
+   "desde": "let k be secret",
+   "hasta": "let rec be receipt",
+   "titulo": {
+    "en": "Synsema: the signed receipt",
+    "es": "Synsema: el recibo firmado"
+   },
+   "nota": {
+    "en": "The signature covers the result hash and the list of reads.",
+    "es": "La firma cubre el hash del resultado y la lista de lecturas."
+   }
+  }
+ ],
+ "reproducir": "python -c \"import secrets; print(secrets.token_hex(32))\" > cases/05-ai-act-traceability/signing_key.hex   # test key, never committed\nRECEIPT_SEED=$(tr -d '\\r\\n' < cases/05-ai-act-traceability/signing_key.hex) synsema run cases/05-ai-act-traceability/train.syn\nsynsema run cases/05-ai-act-traceability/verify.syn\nuv run --with pandas --with scikit-learn python cases/05-ai-act-traceability/python/train.py"
+}

@@ -1,0 +1,353 @@
+intent: "Generate the static site Why Synsema?: pages per language, SVG charts, Open Graph PNG cards, sitemap"
+
+-- Run from the repository root:  synsema run site/build.syn
+-- Add a case: a new JSON in site/content/cases/ (same format) and run again. Nothing else.
+require file.read("./site/content")
+require file.read("./site/content/*")
+require file.read("./site/content/cases")
+require file.read("./site/content/cases/*")
+require file.read("./site/assets/*")
+require file.read("./site/fonts/*")
+require file.read("./cases/*")
+require file.write("./site/dist/*")
+
+let R be "./site/"
+let OUT be R + "dist/"
+let UI be json_decode(read_file(R + "content/ui.json"))
+let BASE be UI.base_url
+let FUENTES be apply((f) => R + "fonts/" + f, ["unbounded-latin-800-normal.ttf", "unbounded-latin-500-normal.ttf", "ibm-plex-sans-latin-400-normal.ttf", "ibm-plex-sans-latin-600-normal.ttf", "ibm-plex-mono-latin-500-normal.ttf"])
+
+-- ---------- helpers ----------
+task esc(s)
+    let t be replace(text(s), "&", "&amp;")
+    set t to replace(t, "<", "&lt;")
+    set t to replace(t, ">", "&gt;")
+    give replace(t, "\"", "&quot;")
+
+-- Synsema has no URL encoding builtin: build it from the UTF-8 bytes
+task url_cod(s)
+    let seguros be "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~"
+    let out be ""
+    each b in bytes(text(s), "utf8")
+        let c be when b < 128 then decode(int_to_bytes(b, 1), "utf8") otherwise ""
+        when b < 128 and c in seguros
+            set out to out + c
+        otherwise
+            set out to out + "%" + upper(slice(hex(256 + b), 3))
+    give out
+
+task num(n, lang)
+    let s be text(round(n))
+    when length(s) < 5 and lang == "es"
+        give s
+    let partes be []
+    let resto be s
+    while length(resto) > 3
+        set partes to flatten([[slice(resto, -3)], partes])
+        set resto to slice(resto, 0, length(resto) - 3)
+    set partes to flatten([[resto], partes])
+    give join(partes, when lang == "es" then "." otherwise ",")
+
+task t(lang, clave)
+    give get(UI.textos[lang], clave, clave)
+
+task tf(lang, clave)
+    give replace(replace(t(lang, clave), "{fecha}", UI.fecha), "{version}", UI.version)
+
+-- Table cells: "+|text" good, "-|text" bad, "~|text" neutral (always icon + text, never color alone)
+task celda(v)
+    let s be text(v)
+    when starts_with(s, "+|")
+        give `<span class="est bueno"><i aria-hidden="true">✓</i><span>{esc(slice(s, 2))}</span></span>`
+    when starts_with(s, "-|")
+        give `<span class="est malo"><i aria-hidden="true">✗</i><span>{esc(slice(s, 2))}</span></span>`
+    when starts_with(s, "~|")
+        give `<span class="est neutro"><i aria-hidden="true">·</i><span>{esc(slice(s, 2))}</span></span>`
+    give esc(s)
+
+-- The site fonts only ship the Latin subset: → and ≥ go in their own tspan (in the PNG, a missing glyph
+-- would make the WHOLE text fall back to the default font)
+task svg_txt(s)
+    let x be esc(s)
+    set x to replace(x, "→", "<tspan font-family=\"DejaVu Sans\">→</tspan>")
+    give replace(x, "≥", "<tspan font-family=\"DejaVu Sans\">≥</tspan>")
+
+-- Split text into lines of at most n characters
+task lineas(s, n)
+    let out be []
+    let actual be ""
+    each p in split(s, " ")
+        when actual == ""
+            set actual to p
+        otherwise when length(actual) + 1 + length(p) <= n
+            set actual to actual + " " + p
+        otherwise
+            set out to append(out, actual)
+            set actual to p
+    give append(out, actual)
+
+-- Real code excerpt between two markers (stays correct when the file changes)
+task fragmento(s)
+    let ls be split(replace(read_file("./" + s.archivo), "\r", ""), "\n")
+    let ini be nothing
+    let fin be nothing
+    each e in enumerate(ls)
+        when ini == nothing and contains(e.item, s.desde)
+            set ini to e.index
+        when ini != nothing and fin == nothing and contains(e.item, s.hasta)
+            set fin to e.index
+    when ini == nothing
+        raise(`marker «{s.desde}» not found in {s.archivo}`)
+    give {"linea": ini + 1, "texto": join(slice(ls, ini, (when fin == nothing then ini otherwise fin) + 1), "\n")}
+
+-- ---------- SVG charts (the same ones for the web and for the PNG cards) ----------
+task etq(d, lang)
+    give d.etiqueta[lang]
+
+task g_barras(g, lang)
+    let W be 600
+    let base be 236
+    let n be length(g.datos)
+    let ancho be 120
+    let paso be W / n
+    let partes be []
+    each e in enumerate(g.datos)
+        let d be e.item
+        let cx be paso * e.index + paso / 2
+        let h be d.valor / g.max * 170
+        let cls be when d.synsema then "g-syn" otherwise "g-otro"
+        when d.valor == 0
+            set partes to append(partes, `<rect class="g-vacio" x="{cx - ancho / 2}" y="{base - 10}" width="{ancho}" height="10" rx="3"/>`)
+        otherwise
+            set partes to append(partes, `<rect class="{cls}" x="{cx - ancho / 2}" y="{base - h}" width="{ancho}" height="{h}" rx="6"><title>{esc(etq(d, lang))}: {d.valor}</title></rect>`)
+        set partes to append(partes, `<text class="g-val{when d.synsema then " syn" otherwise ""}" x="{cx}" y="{base - h - 16}" text-anchor="middle" font-size="40" font-weight="800">{d.valor}</text>`)
+        set partes to append(partes, `<text class="g-txt" x="{cx}" y="{base + 32}" text-anchor="middle" font-size="19" font-weight="{when d.synsema then 600 otherwise 400}">{svg_txt(etq(d, lang))}</text>`)
+    give `<svg viewBox="0 0 {W} 280" xmlns="http://www.w3.org/2000/svg" role="img"><line class="g-eje" x1="0" x2="{W}" y1="{base}" y2="{base}"/>{join(partes, "")}</svg>`
+
+task g_barras_h(g, lang)
+    let W be 600
+    let mx be max(apply((d) => d.valor, g.datos))
+    let partes be []
+    each e in enumerate(g.datos)
+        let d be e.item
+        let y be 20 + e.index * 110
+        let w be max(d.valor / mx * 470, 8)
+        let cls be when d.synsema then "g-syn" otherwise "g-otro"
+        set partes to append(partes, `<text class="g-txt" x="0" y="{y + 16}" font-size="20" font-weight="{when d.synsema then 600 otherwise 400}">{svg_txt(etq(d, lang))}</text>`)
+        set partes to append(partes, `<rect class="g-pista" x="0" y="{y + 30}" width="{W}" height="44" rx="8"/>`)
+        set partes to append(partes, `<rect class="{cls}" x="0" y="{y + 30}" width="{w}" height="44" rx="8"><title>{esc(etq(d, lang))}: {num(d.valor, lang)} {g.unidad}</title></rect>`)
+        -- value outside the bar when it fits; on a long bar, inside (in the background color) so it never overflows
+        when w > 400
+            set partes to append(partes, `<text class="g-val-in" x="{w - 14}" y="{y + 63}" text-anchor="end" font-size="28" font-weight="800">{num(d.valor, lang)} {g.unidad}</text>`)
+        otherwise
+            set partes to append(partes, `<text class="g-val{when d.synsema then " syn" otherwise ""}" x="{w + 14}" y="{y + 63}" font-size="28" font-weight="800">{num(d.valor, lang)} {g.unidad}</text>`)
+    give `<svg viewBox="0 0 {W} {20 + length(g.datos) * 110}" xmlns="http://www.w3.org/2000/svg" role="img">{join(partes, "")}</svg>`
+
+task g_waffle(g, lang)
+    let W be 600
+    let lado be 30
+    let gap be 8
+    let partes be []
+    each e in enumerate(g.datos)
+        let d be e.item
+        let y be 10 + e.index * 120
+        set partes to append(partes, `<text class="g-txt" x="0" y="{y + 16}" font-size="20" font-weight="{when d.synsema then 600 otherwise 400}">{svg_txt(etq(d, lang))}</text>`)
+        set partes to append(partes, `<text class="g-val{when d.synsema then " syn" otherwise ""}" x="{W}" y="{y + 18}" text-anchor="end" font-size="26" font-weight="800">{d.valor}</text>`)
+        when d.valor == 0
+            set partes to append(partes, `<rect class="g-vacio" x="1" y="{y + 36}" width="{lado}" height="{lado}" rx="6"/>`)
+        each i in range(d.valor)
+            let col be i % 14
+            let fila be floor(i / 14)
+            set partes to append(partes, `<rect class="{when d.synsema then "g-syn" otherwise "g-otro"}" x="{col * (lado + gap)}" y="{y + 36 + fila * (lado + gap)}" width="{lado}" height="{lado}" rx="6"/>`)
+    give `<svg viewBox="0 0 {W} {10 + length(g.datos) * 120}" xmlns="http://www.w3.org/2000/svg" role="img">{join(partes, "")}</svg>`
+
+task g_puntos(g, lang)
+    let W be 600
+    let partes be []
+    let de be when lang == "es" then "de" otherwise "of"
+    each e in enumerate(g.datos)
+        let d be e.item
+        let y be 10 + e.index * 96
+        set partes to append(partes, `<text class="g-txt" x="0" y="{y + 16}" font-size="20" font-weight="{when d.synsema then 600 otherwise 400}">{svg_txt(etq(d, lang))}</text>`)
+        set partes to append(partes, `<text class="g-val{when d.synsema then " syn" otherwise ""}" x="{W}" y="{y + 18}" text-anchor="end" font-size="24" font-weight="800">{d.valor} {de} {g.total}</text>`)
+        each i in range(g.total)
+            let cx be 18 + i * 46
+            when i < d.valor
+                set partes to append(partes, `<circle class="g-syn" cx="{cx}" cy="{y + 54}" r="16"/>`)
+            otherwise
+                set partes to append(partes, `<circle class="g-hueco" cx="{cx}" cy="{y + 54}" r="15"/>`)
+    give `<svg viewBox="0 0 {W} {10 + length(g.datos) * 96}" xmlns="http://www.w3.org/2000/svg" role="img">{join(partes, "")}</svg>`
+
+task g_donas(g, lang)
+    let W be 600
+    let r be 78
+    let grosor be 30
+    let circ be 2 * pi * r
+    let partes be []
+    let n be length(g.datos)
+    each e in enumerate(g.datos)
+        let d be e.item
+        let cx be W / n * e.index + W / n / 2
+        let cy be 112
+        let frac be d.valor / g.total
+        set partes to append(partes, `<circle class="g-dona-pista" cx="{cx}" cy="{cy}" r="{r}" stroke-width="{grosor}"/>`)
+        set partes to append(partes, `<circle class="{when d.synsema then "g-dona-syn" otherwise "g-dona-otro"}" cx="{cx}" cy="{cy}" r="{r}" stroke-width="{grosor}" stroke-dasharray="{circ * frac} {circ}" transform="rotate(-90 {cx} {cy})"/>`)
+        set partes to append(partes, `<text class="g-val{when d.synsema then " syn" otherwise ""}" x="{cx}" y="{cy + 14}" text-anchor="middle" font-size="40" font-weight="800">{d.valor}/{g.total}</text>`)
+        set partes to append(partes, `<text class="g-txt" x="{cx}" y="{cy + r + 52}" text-anchor="middle" font-size="19" font-weight="{when d.synsema then 600 otherwise 400}">{svg_txt(etq(d, lang))}</text>`)
+    give `<svg viewBox="0 0 {W} 300" xmlns="http://www.w3.org/2000/svg" role="img">{join(partes, "")}</svg>`
+
+task grafico(g, lang)
+    when g.tipo == "barras"
+        give g_barras(g, lang)
+    when g.tipo == "barras_h"
+        give g_barras_h(g, lang)
+    when g.tipo == "waffle"
+        give g_waffle(g, lang)
+    when g.tipo == "puntos"
+        give g_puntos(g, lang)
+    give g_donas(g, lang)
+
+-- ---------- Open Graph cards (1200×630, PNG) ----------
+-- resvg does not know the site's CSS variables: the card carries its own stylesheet with fixed colors (dark background)
+let OG_CSS be ".g-syn{fill:#7c90ff}.g-otro{fill:#6d7486}.g-vacio{fill:none;stroke:#6d7486;stroke-width:2;stroke-dasharray:5 4}.g-hueco{fill:none;stroke:#6d7486;stroke-width:2.5}.g-pista{fill:#1c2336}.g-txt{fill:#eef1f8;font-family:'IBM Plex Sans'}.g-txt2{fill:#a8b0c3;font-family:'IBM Plex Sans'}.g-val{fill:#eef1f8;font-family:'Unbounded'}.g-val.syn{fill:#7c90ff}.g-eje{stroke:#2a3348;stroke-width:1.5}.g-dona-pista{fill:none;stroke:#1c2336}.g-dona-syn{fill:none;stroke:#7c90ff}.g-dona-otro{fill:none;stroke:#6d7486}.g-val-in{fill:#0b0f1a;font-family:'Unbounded'}"
+
+task interior(svg)
+    -- drop the outer <svg …> tag to nest the chart with its own viewBox
+    let vb be regex_capture(svg, "viewBox=\"([^\"]+)\"")[0]
+    let cuerpo be regex_replace(regex_replace(svg, "^<svg[^>]*>", ""), "</svg>$", "")
+    give {"viewbox": vb, "cuerpo": cuerpo}
+
+task og_caso(c, lang, i)
+    let x be c[lang]
+    let g be interior(grafico(c.grafico, lang))
+    let tl be lineas(x.titulo, 19)
+    let nl be lineas(x.numero_texto, 38)
+    let titulo_svg be join(apply((e) => `<text x="72" y="{214 + e.index * 56}" font-family="Unbounded" font-weight="800" font-size="46" fill="#eef1f8">{svg_txt(e.item)}</text>`, enumerate(slice(tl, 0, 3))), "")
+    let y_num be 214 + min(length(tl), 3) * 56 + 100
+    let num_txt be join(apply((e) => `<text x="72" y="{y_num + 46 + e.index * 31}" font-family="IBM Plex Sans" font-size="24" fill="#a8b0c3">{svg_txt(e.item)}</text>`, enumerate(slice(nl, 0, 3))), "")
+    give join([
+        "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1200\" height=\"630\" viewBox=\"0 0 1200 630\"><style>" + OG_CSS + "</style>",
+        `<rect width="1200" height="630" fill="#0b0f1a"/><rect x="0" y="0" width="1200" height="8" fill="#7c90ff"/>`,
+        `<text x="72" y="104" font-family="IBM Plex Mono" font-weight="500" font-size="24" fill="#a8b0c3" letter-spacing="2">{svg_txt(upper(t(lang, "sitio")))}  ·  {svg_txt(upper(t(lang, "caso")))} {i}</text>`,
+        titulo_svg + `<text x="72" y="{y_num}" font-family="Unbounded" font-weight="800" font-size="104" fill="#7c90ff">{svg_txt(x.numero)}</text>` + num_txt,
+        `<svg x="660" y="140" width="480" height="360" viewBox="{g.viewbox}">{g.cuerpo}</svg>`,
+        `<text x="1128" y="580" text-anchor="end" font-family="IBM Plex Mono" font-weight="500" font-size="22" fill="#a8b0c3">{svg_txt(replace(BASE, "https://", ""))}</text></svg>`
+    ], "")
+
+task og_portada(casos, lang)
+    let celdas be join(apply((e) => `<g transform="translate({72 + e.index * 216} 430)"><rect width="200" height="130" rx="14" fill="#141a2a" stroke="#232b40"/><text x="18" y="62" font-family="Unbounded" font-weight="800" font-size="34" fill="#7c90ff">{svg_txt(e.item[lang].numero)}</text>{join(apply((l) => `<text x="18" y="{92 + l.index * 20}" font-family="IBM Plex Sans" font-size="15" fill="#a8b0c3">{svg_txt(l.item)}</text>`, enumerate(slice(lineas(e.item[lang].titulo, 24), 0, 2))), "")}</g>`, enumerate(slice(casos, 0, 5))), "")
+    let sub be lineas(t(lang, "descripcion_portada"), 70)
+    give join([
+        `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"><rect width="1200" height="630" fill="#0b0f1a"/><rect x="0" y="0" width="1200" height="8" fill="#7c90ff"/>`,
+        `<text x="72" y="214" font-family="Unbounded" font-weight="800" font-size="{min(108, floor(1050 / (length(t(lang, "titulo_portada")) * 0.85)))}" fill="#eef1f8">{svg_txt(t(lang, "titulo_portada"))}</text>`,
+        join(apply((e) => `<text x="74" y="{290 + e.index * 36}" font-family="IBM Plex Sans" font-size="27" fill="#a8b0c3">{svg_txt(e.item)}</text>`, enumerate(slice(sub, 0, 3))), "") + celdas + `</svg>`
+    ], "")
+
+task png(svg)
+    give svg_to_png(svg, {"fonts": FUENTES})
+
+-- ---------- HTML ----------
+task url_caso(lang, c)
+    give `/{lang}/cases/{c.id}/`
+
+task cabeza(lang, titulo, descripcion, ruta, og, alternas)
+    let alt be join(apply((l) => `<link rel="alternate" hreflang="{l}" href="{BASE}{replace(ruta, "/" + lang + "/", "/" + l + "/")}">`, UI.idiomas), "")
+    give `<!doctype html><html lang="{lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{esc(titulo)}</title><meta name="description" content="{esc(descripcion)}"><link rel="canonical" href="{BASE}{ruta}">{alt}<link rel="alternate" hreflang="x-default" href="{BASE}{replace(ruta, "/" + lang + "/", "/" + UI.por_defecto + "/")}">
+<meta property="og:type" content="website"><meta property="og:site_name" content="{esc(t(lang, "sitio"))}"><meta property="og:title" content="{esc(titulo)}"><meta property="og:description" content="{esc(descripcion)}"><meta property="og:url" content="{BASE}{ruta}"><meta property="og:image" content="{BASE}{og}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:locale" content="{when lang == "es" then "es_AR" otherwise "en_US"}">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{esc(titulo)}"><meta name="twitter:description" content="{esc(descripcion)}"><meta name="twitter:image" content="{BASE}{og}">
+<link rel="preload" href="/assets/fonts/unbounded-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/assets/style.css"><link rel="icon" href="/assets/icono.svg" type="image/svg+xml"><script src="/assets/site.js" defer></script></head><body>
+<a class="salto" href="#contenido">{esc(t(lang, "saltar"))}</a>`
+
+task barra(lang, ruta)
+    let links be join(apply((l) => `<a href="{replace(ruta, "/" + lang + "/", "/" + l + "/")}" hreflang="{l}" lang="{l}"{when l == lang then " aria-current=\"true\"" otherwise ""}>{upper(l)}</a>`, UI.idiomas), "")
+    give `<header class="barra"><div class="ancho"><a class="marca" href="/{lang}/">synsema <b>{when lang == "es" then "¿por qué?" otherwise "why?"}</b></a><nav class="idiomas" aria-label="{esc(t(lang, "otros_idiomas"))}">{links}</nav></div></header>`
+
+task pie(lang)
+    give `<footer><div class="ancho"><span>{esc(t(lang, "pie_hecho"))}</span><span><a href="{UI.web}">synsema.com</a> · <a href="{UI.repo}">GitHub</a> · <a href="/{lang}/#metodo">{esc(t(lang, "pie_metodo"))}</a></span></div></footer></body></html>`
+
+task figura(c, lang)
+    let x be c[lang]
+    give `<figure class="grafico">{replace(grafico(c.grafico, lang), "role=\"img\"", "role=\"img\" aria-label=\"" + esc(x.grafico_titulo) + "\"")}<figcaption><b>{esc(x.grafico_titulo)}</b><span>{esc(x.grafico_nota)}</span></figcaption></figure>`
+
+task portada(casos, lang)
+    let ruta be `/{lang}/`
+    let marcador be join(apply((c) => `<a href="#{c.id}"><b>{esc(c[lang].numero)}</b><span>{esc(c[lang].titulo)}</span></a>`, casos), "")
+    let pruebas be join(apply((e) => `<section class="prueba" id="{e.item.id}"><div class="ancho"><div class="texto"><div class="etiqueta">{esc(t(lang, "caso"))} {e.index + 1}</div><h2>{esc(e.item[lang].titulo)}</h2><div class="numero">{esc(e.item[lang].numero)}</div><p class="numero-texto">{esc(e.item[lang].numero_texto)}</p><p class="titular">{esc(e.item[lang].titular)}</p><a class="boton" href="{url_caso(lang, e.item)}">{esc(t(lang, "ver_evidencia"))} <span aria-hidden="true">→</span></a></div>{figura(e.item, lang)}</div></section>`, enumerate(casos)), "")
+    let metodo be join(apply((m) => `<li>{esc(m)}</li>`, UI.textos[lang].metodo), "")
+    give join([
+        cabeza(lang, t(lang, "sitio"), t(lang, "descripcion_portada"), ruta, `/og/{lang}.png`, nothing) + barra(lang, ruta),
+        `<main id="contenido"><section class="tesis"><div class="ancho"><div class="etiqueta">{esc(tf(lang, "metodo_corto"))}</div><h1>{svg_q(t(lang, "titulo_portada"))}</h1><p class="bajada">{esc(t(lang, "bajada"))}</p><nav class="marcador" aria-label="{esc(t(lang, "todos"))}">{marcador}</nav></div></section>`,
+        pruebas + `<section class="metodo-bloque" id="metodo"><div class="ancho"><h2>{esc(t(lang, "metodo_titulo"))}</h2><ul>{metodo}</ul></div></section></main>` + pie(lang)
+    ], "")
+
+-- The title's final question mark goes in the accent color
+task svg_q(s)
+    let e be esc(s)
+    when ends_with(e, "?")
+        give slice(e, 0, length(e) - 1) + "<span class=\"q\">?</span>"
+    give e
+
+task tabla(tb)
+    let cab be join(apply((c) => `<th scope="col">{esc(c)}</th>`, tb.columnas), "")
+    give `<div class="tabla"><table><caption>{esc(tb.titulo)}</caption><thead><tr>{cab}</tr></thead><tbody>{join(apply((f) => "<tr>" + join(apply((v) => "<td>" + celda(v) + "</td>", f), "") + "</tr>", tb.filas), "")}</tbody></table></div>`
+
+task bloque_codigo(s, lang)
+    let fr be fragmento(s)
+    give `<article class="codigo{when s.lado == "synsema" then " syn" otherwise ""}"><header><b>{esc(s.titulo[lang])}</b><span>{esc(s.nota[lang])}</span></header><pre><code>{esc(fr.texto)}</code></pre><footer>{esc(s.archivo)} · {esc(t(lang, "desde_linea"))} {fr.linea}</footer></article>`
+
+task pagina_caso(casos, c, i, lang)
+    let x be c[lang]
+    let ruta be url_caso(lang, c)
+    let url be BASE + ruta
+    let prev be when i > 0 then casos[i - 1] otherwise nothing
+    let next be when i < length(casos) - 1 then casos[i + 1] otherwise nothing
+    let nav_prev be when prev == nothing then `<a href="/{lang}/"><span>← {esc(t(lang, "todos"))}</span><b>{esc(t(lang, "sitio"))}</b></a>` otherwise `<a href="{url_caso(lang, prev)}"><span>← {esc(t(lang, "anterior"))}</span><b>{esc(prev[lang].titulo)}</b></a>`
+    let nav_next be when next == nothing then `<a href="/{lang}/" style="text-align:right"><span>{esc(t(lang, "todos"))} →</span><b>{esc(t(lang, "sitio"))}</b></a>` otherwise `<a href="{url_caso(lang, next)}" style="text-align:right"><span>{esc(t(lang, "siguiente"))} →</span><b>{esc(next[lang].titulo)}</b></a>`
+    let otro be join(apply((s) => bloque_codigo(s, lang), where(c.codigo, (s) => s.lado != "synsema")), "")
+    let syn be join(apply((s) => bloque_codigo(s, lang), where(c.codigo, (s) => s.lado == "synsema")), "")
+    let compartir be `<div class="compartir"><a href="https://x.com/intent/post?text={url_cod(x.titular)}&amp;url={url_cod(url)}" rel="noopener" target="_blank">{esc(t(lang, "compartir_x"))}</a><a href="https://www.linkedin.com/sharing/share-offsite/?url={url_cod(url)}" rel="noopener" target="_blank">{esc(t(lang, "compartir_li"))}</a><button type="button" data-copiar="{esc(url)}" data-ok="{esc(t(lang, "copiado"))}">{esc(t(lang, "copiar"))}</button></div>`
+    give join([
+        cabeza(lang, x.titulo + " · " + t(lang, "sitio"), x.titular, ruta, `/og/{lang}-{c.id}.png`, nothing) + barra(lang, ruta),
+        `<main id="contenido"><section class="caso-tesis"><div class="ancho"><a href="/{lang}/#{c.id}">← {esc(t(lang, "todos"))}</a><div class="etiqueta" style="margin-top:18px">{esc(t(lang, "caso"))} {i + 1} · {esc(tf(lang, "metodo_corto"))}</div><h1>{esc(x.titulo)}</h1><p class="pregunta">{esc(x.pregunta)}</p></div></section>`,
+        `<div class="ancho"><div class="impacto"><div class="resumen"><div class="numero">{esc(x.numero)}</div><p class="numero-texto">{esc(x.numero_texto)}</p><p class="titular" style="margin:0">{esc(x.titular)}</p></div>{figura(c, lang)}</div>`,
+        `<section class="seccion"><h2>{esc(t(lang, "el_problema"))}</h2><div class="prosa">{join(apply((p) => "<p>" + esc(p) + "</p>", x.problema), "")}</div></section>`,
+        `<section class="seccion"><h2>{esc(t(lang, "que_probamos"))}</h2><ul class="lista gris">{join(apply((p) => "<li>" + esc(p) + "</li>", x.construimos), "")}</ul></section>`,
+        `<section class="seccion"><h2>{esc(t(lang, "resultados"))}</h2>{join(apply(tabla, x.tablas), "")}</section>`,
+        `<section class="seccion"><h2>{esc(t(lang, "el_codigo"))}</h2><div class="lados"><div class="columna"><div class="etiqueta">{esc(t(lang, "lo_habitual"))}</div>{otro}</div><div class="columna"><div class="etiqueta" style="color:var(--cobalt)">Synsema</div>{syn}</div></div></section>`,
+        `<section class="seccion"><h2>{esc(t(lang, "por_que"))}</h2><ul class="lista">{join(apply((p) => "<li>" + esc(p) + "</li>", x.por_que), "")}</ul></section>`,
+        `<section class="seccion"><h2>{esc(t(lang, "limites"))}</h2><ul class="lista gris">{join(apply((p) => "<li>" + esc(p) + "</li>", x.limites), "")}</ul></section>`,
+        `<section class="seccion reproducir"><h2>{esc(t(lang, "reproducir"))}</h2><pre>{esc("git clone " + UI.repo + " && cd why-synsema\n# " + c.fuente + "\n" + c.reproducir)}</pre><p><a href="{UI.repo}/tree/main/{c.fuente}">{esc(replace(UI.repo, "https://", ""))}/tree/main/{esc(c.fuente)}</a></p></section>`,
+        `<section class="seccion"><h2>{esc(t(lang, "compartir"))}</h2>{compartir}</section>`,
+        `<nav class="navegacion">{nav_prev}{nav_next}</nav></div></main>` + pie(lang)
+    ], "")
+
+-- ---------- build ----------
+let archivos be sort(apply((e) => e.name, where(list_dir(R + "content/cases"), (e) => ends_with(e.name, ".json"))))
+let casos be sort_by(apply((f) => json_decode(read_file(R + "content/cases/" + f)), archivos), (c) => c.orden)
+print(`{length(casos)} cases: {apply((c) => c.id, casos)}`)
+
+-- assets
+write_file(OUT + "assets/style.css", read_file(R + "assets/style.css"))
+write_file(OUT + "assets/site.js", read_file(R + "assets/site.js"))
+write_file(OUT + "assets/icono.svg", read_file(R + "assets/icono.svg"))
+each f in ["unbounded-latin-800-normal", "unbounded-latin-500-normal", "ibm-plex-sans-latin-400-normal", "ibm-plex-sans-latin-600-normal", "ibm-plex-mono-latin-400-normal", "ibm-plex-mono-latin-500-normal"]
+    write_file(OUT + "assets/fonts/" + f + ".woff2", read_file_bytes(R + "fonts/" + f + ".woff2"))
+
+let urls be []
+each lang in UI.idiomas
+    write_file(OUT + lang + "/index.html", portada(casos, lang))
+    write_file(OUT + "og/" + lang + ".png", png(og_portada(casos, lang)))
+    set urls to append(urls, `/{lang}/`)
+    each e in enumerate(casos)
+        write_file(OUT + lang + "/cases/" + e.item.id + "/index.html", pagina_caso(casos, e.item, e.index, lang))
+        write_file(OUT + "og/" + lang + "-" + e.item.id + ".png", png(og_caso(e.item, lang, e.index + 1)))
+        set urls to append(urls, url_caso(lang, e.item))
+    print(`{lang}: home + {length(casos)} cases + {length(casos) + 1} cards`)
+
+-- root: pick the language from the browser; without JS, English
+let JS_IDIOMA be "try{var l=(navigator.languages&&navigator.languages[0]||navigator.language||'en').toLowerCase();location.replace(l.indexOf('es')===0?'/es/':'/en/')}catch(e){location.replace('/en/')}"
+write_file(OUT + "index.html", `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Why Synsema?</title><link rel="canonical" href="{BASE}/en/"><meta http-equiv="refresh" content="0; url=/en/"><meta property="og:title" content="Why Synsema?"><meta property="og:image" content="{BASE}/og/en.png"><meta name="twitter:card" content="summary_large_image"><script>` + JS_IDIOMA + `</script></head><body><a href="/en/">Why Synsema?</a> · <a href="/es/">¿Por qué Synsema?</a></body></html>`)
+write_file(OUT + "robots.txt", `User-agent: *\nAllow: /\nSitemap: {BASE}/sitemap.xml\n`)
+write_file(OUT + "sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{join(apply((u) => "  <url><loc>" + BASE + u + "</loc><lastmod>" + UI.fecha + "</lastmod></url>", urls), "\n")}\n</urlset>\n`)
+print(`done: {length(urls)} pages in {OUT}`)

@@ -1,0 +1,217 @@
+{
+ "id": "supply-chain",
+ "orden": 3,
+ "fuente": "cases/03-supply-chain",
+ "grafico": {
+  "tipo": "waffle",
+  "datos": [
+   {
+    "etiqueta": {
+     "en": "Python ETL",
+     "es": "ETL en Python"
+    },
+    "valor": 14,
+    "synsema": false
+   },
+   {
+    "etiqueta": {
+     "en": "Synsema ETL",
+     "es": "ETL en Synsema"
+    },
+    "valor": 0,
+    "synsema": true
+   }
+  ]
+ },
+ "en": {
+  "titulo": "What a dependency can do",
+  "numero": "14 vs 0",
+  "numero_texto": "third-party packages in the same 29-line ETL",
+  "titular": "The same ETL: 14 packages and 169 MB of other people's code in Python, zero in Synsema.",
+  "pregunta": "Your ETL imports a helper module. What can that module do with your program's permissions?",
+  "grafico_titulo": "Third-party packages installed for the same ETL",
+  "grafico_nota": "Each square is one package, direct or transitive. 169 MB, 2,156 .py files and 99 native binaries on the Python side.",
+  "problema": [
+   "Poisoned packages on npm and PyPI that steal tokens and CI secrets are now a monthly event.",
+   "In Python or Node, any imported module runs with every permission the process has. A small ETL pulls in a dozen packages nobody reads."
+  ],
+  "construimos": [
+   "A real ETL, written twice in 29 lines: daily weather for five cities from Open-Meteo to Parquet plus a CSV summary. Both produce the same numbers.",
+   "Each version imports a helper module that stands for any dependency. It formats numbers and also reports what it could do: read .env, open a connection to an undeclared host.",
+   "Dependency count, size and known vulnerabilities (pip-audit) on the Python side; synsema code caps and synsema build on the Synsema side."
+  ],
+  "tablas": [
+   {
+    "titulo": "Same ETL, side by side",
+    "columnas": [
+     "",
+     "Python",
+     "Synsema"
+    ],
+    "filas": [
+     [
+      "Packages, direct and transitive",
+      "-|14",
+      "+|0"
+     ],
+     [
+      "Third-party code on disk",
+      "-|169 MB · 2,156 .py files · 99 native binaries",
+      "+|none"
+     ],
+     [
+      "Known vulnerabilities (pip-audit)",
+      "-|3 advisories in requests, pyarrow, python-dotenv",
+      "+|nothing to audit"
+     ],
+     [
+      "The imported module can read .env",
+      "-|yes",
+      "+|no"
+     ],
+     [
+      "The imported module can reach an undeclared host",
+      "-|yes",
+      "+|no"
+     ],
+     [
+      "Know what it touches before running",
+      "-|no, read all 14 packages",
+      "+|yes, code caps flags MISSING file.read(\".env\") and net(\"example.com\")"
+     ],
+     [
+      "Distribution",
+      "~|interpreter + venv + 14 packages",
+      "+|one 45.9 MB binary"
+     ],
+     [
+      "Run time",
+      "~|6.8 to 9.3 s (1.3 s just importing; cities fetched in sequence)",
+      "~|1.4 s (cities fetched in parallel)"
+     ]
+    ]
+   }
+  ],
+  "por_que": [
+   "There is no package manager and no third-party code. Modules are local files.",
+   "A module only gets the capabilities the entry file declared. If the ETL declares one host, no module can talk to another.",
+   "synsema code caps is a static review: it shows what each task needs and what is missing, before anything runs."
+  ],
+  "limites": [
+   "The pip-audit advisories go away by upgrading, which is exactly the continuous upkeep Python asks for.",
+   "A local Synsema module inherits the program's capabilities. If the program declares too much, the module gets it too.",
+   "The run-time gap is mostly sequential versus parallel downloads, not the language."
+  ]
+ },
+ "es": {
+  "titulo": "Qué puede hacer una dependencia",
+  "numero": "14 vs 0",
+  "numero_texto": "paquetes de terceros en el mismo ETL de 29 líneas",
+  "titular": "El mismo ETL: 14 paquetes y 169 MB de código ajeno en Python, cero en Synsema.",
+  "pregunta": "Tu ETL importa un módulo auxiliar. ¿Qué puede hacer ese módulo con los permisos de tu programa?",
+  "grafico_titulo": "Paquetes de terceros instalados para el mismo ETL",
+  "grafico_nota": "Cada cuadrado es un paquete, directo o transitivo. 169 MB, 2156 archivos .py y 99 binarios nativos del lado de Python.",
+  "problema": [
+   "Los paquetes envenenados en npm y PyPI que roban tokens y secretos de CI ya son cosa de todos los meses.",
+   "En Python o Node, cualquier módulo importado corre con todos los permisos del proceso. Un ETL chico trae una docena de paquetes que nadie lee."
+  ],
+  "construimos": [
+   "Un ETL real, escrito dos veces en 29 líneas: clima diario de cinco ciudades desde Open-Meteo a Parquet más un resumen CSV. Los dos dan los mismos números.",
+   "Cada versión importa un módulo auxiliar que representa cualquier dependencia. Formatea números y además informa qué podría hacer: leer .env, abrir una conexión a un host no declarado.",
+   "Cantidad de dependencias, tamaño y vulnerabilidades conocidas (pip-audit) del lado de Python; synsema code caps y synsema build del lado de Synsema."
+  ],
+  "tablas": [
+   {
+    "titulo": "El mismo ETL, lado a lado",
+    "columnas": [
+     "",
+     "Python",
+     "Synsema"
+    ],
+    "filas": [
+     [
+      "Paquetes, directos y transitivos",
+      "-|14",
+      "+|0"
+     ],
+     [
+      "Código de terceros en disco",
+      "-|169 MB · 2156 archivos .py · 99 binarios nativos",
+      "+|ninguno"
+     ],
+     [
+      "Vulnerabilidades conocidas (pip-audit)",
+      "-|3 avisos en requests, pyarrow, python-dotenv",
+      "+|nada que auditar"
+     ],
+     [
+      "El módulo importado puede leer .env",
+      "-|sí",
+      "+|no"
+     ],
+     [
+      "El módulo importado puede ir a un host no declarado",
+      "-|sí",
+      "+|no"
+     ],
+     [
+      "Saber qué toca antes de ejecutar",
+      "-|no, hay que leer los 14 paquetes",
+      "+|sí, code caps marca MISSING file.read(\".env\") y net(\"example.com\")"
+     ],
+     [
+      "Distribución",
+      "~|intérprete + venv + 14 paquetes",
+      "+|un binario de 45,9 MB"
+     ],
+     [
+      "Tiempo de ejecución",
+      "~|6,8 a 9,3 s (1,3 s solo en importar; ciudades en serie)",
+      "~|1,4 s (ciudades en paralelo)"
+     ]
+    ]
+   }
+  ],
+  "por_que": [
+   "No hay gestor de paquetes ni código de terceros. Los módulos son archivos locales.",
+   "Un módulo recibe solo las capabilities que declaró el archivo de entrada. Si el ETL declara un host, ningún módulo puede hablar con otro.",
+   "synsema code caps es una revisión estática: muestra qué necesita cada task y qué falta declarar, antes de ejecutar."
+  ],
+  "limites": [
+   "Los avisos de pip-audit se van actualizando, que es justamente el mantenimiento continuo que pide Python.",
+   "Un módulo local de Synsema hereda las capabilities del programa. Si el programa declara de más, el módulo también las tiene.",
+   "La diferencia de tiempo viene sobre todo de bajar en serie contra en paralelo, no del lenguaje."
+  ]
+ },
+ "codigo": [
+  {
+   "lado": "otro",
+   "archivo": "cases/03-supply-chain/python/etl.py",
+   "desde": "import datetime",
+   "hasta": "print(\"what the imported module",
+   "titulo": {
+    "en": "Python ETL",
+    "es": "ETL en Python"
+   },
+   "nota": {
+    "en": "requests, pandas, pyarrow, tenacity, python-dotenv.",
+    "es": "requests, pandas, pyarrow, tenacity, python-dotenv."
+   }
+  },
+  {
+   "lado": "synsema",
+   "archivo": "cases/03-supply-chain/synsema/etl.syn",
+   "desde": "use \"./helpers.syn\"",
+   "hasta": "print(`what the imported module",
+   "titulo": {
+    "en": "The same ETL in Synsema",
+    "es": "El mismo ETL en Synsema"
+   },
+   "nota": {
+    "en": "Two requires: one host and one output folder. Nothing else.",
+    "es": "Dos require: un host y una carpeta de salida. Nada más."
+   }
+  }
+ ],
+ "reproducir": "synsema run       cases/03-supply-chain/synsema/etl.syn\nsynsema code caps cases/03-supply-chain/synsema/etl.syn\nuv run --with-requirements cases/03-supply-chain/python/requirements.txt python cases/03-supply-chain/python/etl.py cases/03-supply-chain/results\nuvx pip-audit -r cases/03-supply-chain/python/requirements.txt"
+}

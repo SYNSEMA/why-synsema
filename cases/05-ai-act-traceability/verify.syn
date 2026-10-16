@@ -1,0 +1,48 @@
+intent: "Verify a training receipt without trusting whoever issued it: signature, result hash, hash of every data read and of the model"
+
+-- Usage: synsema run cases/05-ai-act-traceability/verify.syn [-- <data folder to check>]
+-- Needs no private key: only the receipt, the issuer's public DID and the files.
+require file.read("./cases/05-ai-act-traceability/*")
+require file.read("./cases/05-ai-act-traceability/results/*")
+require file.read("./cases/05-ai-act-traceability/data/*")
+require file.read("./cases/05-ai-act-traceability/tampered/*")
+
+let D be "./cases/05-ai-act-traceability"
+let a be args()
+let folder be when length(a) > 0 then a[0] otherwise nothing   -- to test against tampered data
+let rec be json_decode(read_file(`{D}/results/receipt.json`))
+let did be trim(read_file(`{D}/results/issuer.did`))
+let cs be rec.credentialSubject
+let failures be []
+
+-- 1. Signature: this key issued the receipt and not one byte changed
+let v be receipt_verify(rec, did)
+print(`1. signature ({did}): {when v == nothing then "INVALID" otherwise "valid, " + v.cryptosuite}`)
+when v == nothing
+    set failures to append(failures, "signature")
+
+-- 2. The declared result is the one the engine signed
+let declared be read_file(`{D}/results/declared_result.json`)
+let h be slice(hex(sha256(declared)), 2)
+print(`2. declared result: {when h == cs.declared_result_sha256 then "matches the signed hash" otherwise "does NOT match"}`)
+when h != cs.declared_result_sha256
+    set failures to append(failures, "result")
+
+-- 3. The model on disk is the one the result names
+let res be json_decode(declared)
+let hm be slice(hex(sha256(read_file(`{D}/results/model.json`))), 2)
+print(`3. model.json: {when hm == res.model_sha256 then "matches" otherwise "does NOT match (the model changed after training)"}`)
+when hm != res.model_sha256
+    set failures to append(failures, "model")
+
+-- 4. Every data file the training read is still the same
+print(`4. data read ({length(cs.inputs)}):`)
+each e in cs.inputs
+    let path be when folder == nothing then e.what otherwise folder + "/" + split(e.what, "/")[-1]
+    let current be slice(hex(sha256(when e.encoding == "bytes" then read_file_bytes(path) otherwise read_file(path))), 2)
+    let ok be current == e.sha256
+    print(`   {when ok then "ok     " otherwise "CHANGED"} {e.what}`)
+    when not ok
+        set failures to append(failures, e.what)
+
+print(when length(failures) == 0 then "VERIFIED: signature, result, model and data match" otherwise `NOT VERIFIED: {failures}`)

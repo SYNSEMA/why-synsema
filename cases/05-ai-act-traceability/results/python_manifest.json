@@ -1,0 +1,11 @@
+{
+ "n_train": 498,
+ "accuracy_vs_truth": 0.5048,
+ "data": [
+  {
+   "file": "cases/05-ai-act-traceability/data/teacher_labels.csv",
+   "bytes": 35766,
+   "sha256": "342cac95f8eb9acef98062a259ae1cbcd4524184e54b9d4d7bac4552e2990377"
+  }
+ ]
+}

@@ -1,0 +1,26 @@
+intent: "The four security tests, run the way the LLM's code runs: with run_program and the same ceiling the analyst uses"
+
+require sandbox_run
+require file.read("./cases/02-llm-written-analytics/data/*")
+require time
+
+let CEILING be "stdout,file.read=./cases/02-llm-written-analytics/data/*"
+-- The "generated" code asks for too much: the ceiling trims it anyway
+let PRE be "require file.read(\"./cases/02-llm-written-analytics/data/*\")\nrequire file.read(\"./.env\")\nrequire net(\"example.com\")\nrequire file.write(\"./cases/02-llm-written-analytics/data/*\")\n"
+
+task probe(code, timeout)
+    let t0 be now()
+    let r be run_program(PRE + code, {"ceiling": CEILING, "profile": "native", "timeout": timeout})
+    let ms be round((now() - t0) * 1000)
+    when r.ok
+        give `ALLOWED ({join(r.output, " ")}, {ms} ms)`
+    when r.timed_out
+        give `killed by timeout after {ms} ms; the whole child process is killed`
+    give `blocked ({slice(join(r.errors, " "), 15, 90)}…, {ms} ms)`
+
+print(json_encode({
+    "read the data": probe("print(length(csv_parse(read_file(\"./cases/02-llm-written-analytics/data/books.csv\"))))", 10),
+    "read .env": probe("print(length(read_file(\"./.env\")))", 10),
+    "network": probe("print(http_get(\"https://example.com\").status)", 10),
+    "overwrite the data": probe("write_file(\"./cases/02-llm-written-analytics/data/x.txt\", \"x\")\nprint(\"wrote\")", 10),
+    "infinite loop": probe("let n be 0\nwhile true\n    set n to n + 1", 3)}))

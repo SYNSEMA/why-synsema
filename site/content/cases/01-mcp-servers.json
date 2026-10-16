@@ -1,0 +1,236 @@
+{
+ "id": "mcp-servers",
+ "orden": 1,
+ "fuente": "cases/01-mcp-servers",
+ "grafico": {
+  "tipo": "barras",
+  "max": 5,
+  "datos": [
+   {
+    "etiqueta": {
+     "en": "Python, typical",
+     "es": "Python típico"
+    },
+    "valor": 5,
+    "synsema": false
+   },
+   {
+    "etiqueta": {
+     "en": "Python, hardened",
+     "es": "Python endurecido"
+    },
+    "valor": 5,
+    "synsema": false
+   },
+   {
+    "etiqueta": {
+     "en": "Synsema",
+     "es": "Synsema"
+    },
+    "valor": 0,
+    "synsema": true
+   }
+  ]
+ },
+ "en": {
+  "titulo": "MCP servers that leak by accident",
+  "numero": "5 vs 0",
+  "numero_texto": "confidential fields the model receives after one careless tool",
+  "titular": "One careless tool leaks every confidential field in Python. Synsema refuses it at runtime.",
+  "pregunta": "What does the model receive from your MCP server when a teammate adds a tool that returns the whole record?",
+  "grafico_titulo": "Confidential fields handed to the model by the careless tool",
+  "grafico_nota": "Same four tools, same catalog: cost, supplier, minimum margin, maximum discount, internal note.",
+  "problema": [
+   "An MCP server cannot know why the model is asking. The request may come from a document, an email or a web page nobody controls. The only thing the server controls is what it returns.",
+   "In Python and TypeScript, \"never return confidential fields\" is a convention. It holds until the third pull request, when someone adds a convenience tool that returns the full record."
+  ],
+  "construimos": [
+   "Three MCP servers with the same four tools over the same product catalog: the official Python SDK written the usual way, a hardened Python version with a public view and server-side quoting, and Synsema with information-flow labels.",
+   "In all three, a fourth tool, \"added later for the purchasing team\", returns the whole record.",
+   "A side-by-side test bench calls every tool on the three servers, and any MCP client (Claude Code, Cursor) can connect to them."
+  ],
+  "tablas": [
+   {
+    "titulo": "What the model receives",
+    "columnas": [
+     "Tool",
+     "Python, typical",
+     "Python, hardened",
+     "Synsema"
+    ],
+    "filas": [
+     [
+      "list_products",
+      "-|all 5 confidential fields",
+      "+|public fields only",
+      "+|public fields only"
+     ],
+     [
+      "get_product",
+      "-|all 5 confidential fields",
+      "+|public fields only",
+      "+|public fields only"
+     ],
+     [
+      "quote (uses cost and margin inside)",
+      "+|price only",
+      "+|price only",
+      "+|price only, each output declassified with a written reason"
+     ],
+     [
+      "product_detail, added later",
+      "-|all 5 confidential fields",
+      "-|all 5 confidential fields",
+      "+|refused: label_violation"
+     ],
+     [
+      "Know before running what can leave",
+      "-|no",
+      "-|no, read every tool",
+      "+|yes, synsema code check lists 4 exits"
+     ],
+     [
+      "Latency per call",
+      "~|4 ms",
+      "~|4 ms",
+      "~|4 ms"
+     ]
+    ]
+   }
+  ],
+  "por_que": [
+   "Confidential values are labeled once, when loaded. Every value computed from them carries the label.",
+   "Any public exit (the HTTP response, a log, a file) refuses a labeled value unless the code calls declassify with a reason, and that reason is logged.",
+   "synsema code check lists every declassify with its line before anything runs. That list is the security review."
+  ],
+  "limites": [
+   "Labels are opt-in: the server must run with serve --labels. Without the flag, private() fails on purpose instead of running unprotected.",
+   "Propagation is conservative. Reading public fields from a list that also holds private values gives a private result, so public and confidential data must live in separate structures.",
+   "A violation returns HTTP 500, not a tidy JSON-RPC error. It cannot be caught, because catching it would leak one bit per try.",
+   "Labels protect confidentiality, not authorization. If quoting is allowed, the model can still ask for the maximum discount."
+  ]
+ },
+ "es": {
+  "titulo": "Servidores MCP que filtran sin querer",
+  "numero": "5 vs 0",
+  "numero_texto": "campos confidenciales que recibe el modelo después de una herramienta descuidada",
+  "titular": "Una herramienta descuidada filtra todos los campos confidenciales en Python. Synsema la rechaza en el runtime.",
+  "pregunta": "¿Qué recibe el modelo de tu servidor MCP cuando alguien del equipo agrega una herramienta que devuelve el registro entero?",
+  "grafico_titulo": "Campos confidenciales que la herramienta descuidada le entrega al modelo",
+  "grafico_nota": "Mismas cuatro herramientas, mismo catálogo: costo, proveedor, margen mínimo, descuento máximo y nota interna.",
+  "problema": [
+   "Un servidor MCP no puede saber por qué le pide algo el modelo. El pedido puede venir de un documento, un mail o una página que nadie controla. Lo único que controla el servidor es qué devuelve.",
+   "En Python y TypeScript, «nunca devolver campos confidenciales» es una convención. Dura hasta el tercer pull request, cuando alguien agrega una herramienta cómoda que devuelve el registro completo."
+  ],
+  "construimos": [
+   "Tres servidores MCP con las mismas cuatro herramientas sobre el mismo catálogo: el SDK oficial de Python escrito como se hace habitualmente, una versión Python endurecida con vista pública y cotización en el servidor, y Synsema con etiquetas de flujo de información.",
+   "En los tres, una cuarta herramienta, «agregada después para el equipo de compras», devuelve el registro entero.",
+   "Un banco de pruebas llama cada herramienta en los tres servidores lado a lado, y cualquier cliente MCP (Claude Code, Cursor) se puede conectar."
+  ],
+  "tablas": [
+   {
+    "titulo": "Qué recibe el modelo",
+    "columnas": [
+     "Herramienta",
+     "Python típico",
+     "Python endurecido",
+     "Synsema"
+    ],
+    "filas": [
+     [
+      "list_products",
+      "-|los 5 campos confidenciales",
+      "+|solo públicos",
+      "+|solo públicos"
+     ],
+     [
+      "get_product",
+      "-|los 5 campos confidenciales",
+      "+|solo públicos",
+      "+|solo públicos"
+     ],
+     [
+      "quote (usa costo y margen adentro)",
+      "+|solo el precio",
+      "+|solo el precio",
+      "+|solo el precio, cada salida con declassify y su motivo"
+     ],
+     [
+      "product_detail, agregada después",
+      "-|los 5 campos confidenciales",
+      "-|los 5 campos confidenciales",
+      "+|rechazada: label_violation"
+     ],
+     [
+      "Saber antes de ejecutar qué puede salir",
+      "-|no",
+      "-|no, hay que leer cada herramienta",
+      "+|sí, synsema code check lista 4 salidas"
+     ],
+     [
+      "Latencia por llamada",
+      "~|4 ms",
+      "~|4 ms",
+      "~|4 ms"
+     ]
+    ]
+   }
+  ],
+  "por_que": [
+   "Los valores confidenciales se etiquetan una vez, al cargarlos. Todo lo que se calcula con ellos hereda la etiqueta.",
+   "Toda salida pública (la respuesta HTTP, un log, un archivo) rechaza un valor etiquetado, salvo que el código llame a declassify con un motivo, y ese motivo queda registrado.",
+   "synsema code check lista cada declassify con su línea antes de ejecutar nada. Esa lista es la revisión de seguridad."
+  ],
+  "limites": [
+   "Las etiquetas son opt-in: el servidor tiene que correr con serve --labels. Sin la bandera, private() falla a propósito en lugar de correr sin protección.",
+   "La propagación es conservadora. Leer campos públicos de una lista que también tiene valores privados da un resultado privado, así que lo público y lo confidencial tienen que vivir en estructuras separadas.",
+   "Una violación responde HTTP 500, no un error JSON-RPC prolijo. No se puede atrapar, porque atraparla filtraría un bit por intento.",
+   "Las etiquetas protegen la confidencialidad, no la autorización. Si cotizar está permitido, el modelo igual puede pedir el descuento máximo."
+  ]
+ },
+ "codigo": [
+  {
+   "lado": "otro",
+   "archivo": "cases/01-mcp-servers/servers/py_hardened.py",
+   "desde": "def product_detail",
+   "hasta": "the slip",
+   "titulo": {
+    "en": "Hardened Python: the careless tool",
+    "es": "Python endurecido: la herramienta descuidada"
+   },
+   "nota": {
+    "en": "Nothing in Python stops it from returning the whole record.",
+    "es": "Nada en Python impide devolver el registro entero."
+   }
+  },
+  {
+   "lado": "synsema",
+   "archivo": "cases/01-mcp-servers/servers/mcp.syn",
+   "desde": "task load_confidential()",
+   "hasta": "    give conf",
+   "titulo": {
+    "en": "Synsema: confidential fields labeled once, at load",
+    "es": "Synsema: campos confidenciales etiquetados una vez, al cargar"
+   },
+   "nota": {
+    "en": "From here on, everything computed from these values carries the label.",
+    "es": "Desde acá, todo lo que se calcula con estos valores hereda la etiqueta."
+   }
+  },
+  {
+   "lado": "synsema",
+   "archivo": "cases/01-mcp-servers/servers/mcp.syn",
+   "desde": "-- (Added later",
+   "hasta": "give merge(find(args.id)",
+   "titulo": {
+    "en": "Synsema: the same careless tool",
+    "es": "Synsema: la misma herramienta descuidada"
+   },
+   "nota": {
+    "en": "Same mistake. The HTTP response is a public exit, so the runtime refuses it.",
+    "es": "Mismo error. La respuesta HTTP es una salida pública, así que el runtime la rechaza."
+   }
+  }
+ ],
+ "reproducir": "bash cases/01-mcp-servers/start.sh                       # three MCP servers on 8101, 8102, 8103\npython cases/01-mcp-servers/bench/compare.py             # same calls on the three, saved to results/\nsynsema code check cases/01-mcp-servers/servers/mcp.syn --json"
+}

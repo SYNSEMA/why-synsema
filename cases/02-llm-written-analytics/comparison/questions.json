@@ -1,0 +1,12 @@
+[
+ {"id": 1, "question": "Which book category has the highest average price (among categories with at least 5 books), and how many books does it have?"},
+ {"id": 2, "question": "Which 3 cities had the most rain in 2025, and what was their mean temperature?"},
+ {"id": 3, "question": "On Steam, which country has the lowest median price index relative to the US, and what is that index?"},
+ {"id": 4, "question": "Which store appears most often as the cheapest, and what is the average discount on those games?"},
+ {"id": 5, "question": "In Brooklyn, at what hour are taxis slowest (lowest mph), and what is the tip percentage at that hour?"},
+ {"id": 6, "question": "What is the most frequent taxi route whose origin and destination are both NOT in the Upper East Side, and how many trips does it have?"},
+ {"id": 7, "question": "Which month had the highest average revenue per taxi trip, and how much was it?"},
+ {"id": 8, "question": "In the demand model validation, on how many days did the model miss the actual value by more than 10%, and which day had the largest percentage error?"},
+ {"id": 9, "question": "In the trades, what was the volume-weighted average price (VWAP) of BTC on each exchange, and the difference between them in basis points?"},
+ {"id": 10, "question": "In the teacher labels, what percentage matches the true label, split by source?"}
+]

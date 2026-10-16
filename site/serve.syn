@@ -1,0 +1,12 @@
+intent: "Serve the Why Synsema? site (site/dist) with Synsema"
+
+-- Local:       synsema serve site/serve.syn                 → http://localhost:8120
+-- Production:  synsema serve site/serve.syn --bind 0.0.0.0 --domain why.synsema.com --tls-auto
+--              (see README: subdomain DNS pointing to the server, ports 80 and 443 open)
+require serve(8120)
+
+serve on 8120
+    rate_limit 300 per minute
+    static "/assets" from "./site/dist/assets" cache "7d"
+    static "/og" from "./site/dist/og" cache "1d"
+    static "./site/dist" cache "10m"

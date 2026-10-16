@@ -1,0 +1,99 @@
+-- Shared LLM client: OpenAI-compatible calls over HTTP inside a task, with retries, a fallback provider and
+-- tolerant JSON parsing. Keys come from .env (DEEPSEEK_API_KEY, GLM_API_KEY, MINIMAX_API_KEY) and are
+-- read as secret: never printed, never serialized, only materialized in the HTTP header.
+-- A module cannot have top-level require: they live inside each task, and the entry file grants them.
+-- Synsema modules cannot import from a parent folder, so each case keeps a copy of this file in lib/.
+
+let PROVIDERS be {
+    "deepseek": {"url": "https://api.deepseek.com/chat/completions", "key": "DEEPSEEK_API_KEY"},
+    "glm": {"url": "https://api.z.ai/api/coding/paas/v4/chat/completions", "key": "GLM_API_KEY"},
+    "minimax": {"url": "https://api.minimax.io/v1/chat/completions", "key": "MINIMAX_API_KEY"}}
+
+-- Model per task, measured (2 runs, 20 titles per call):
+--   glm-5.3-flashx 4.2 s 95 % · glm-5.3 5.4 s 100 % · deepseek-flash 6.9 s 100 % · MiniMax-M3 10 s 95-100 %
+--   MiniMax-M2.7-highspeed 14 s · deepseek-v4-pro 15-23 s (reasons a lot, needs a high max_tokens)
+export let MODELS be {
+    "label": {"prov": "glm", "model": "glm-5.3"},
+    "normalize": {"prov": "glm", "model": "glm-5.3-flashx"},
+    "summarize": {"prov": "deepseek", "model": "deepseek-flash"},
+    "reason": {"prov": "deepseek", "model": "deepseek-v4-pro"},
+    "fallback": {"prov": "minimax", "model": "MiniMax-M3"}}
+
+task key_for(name)
+    require secret("DEEPSEEK_API_KEY")
+    require secret("GLM_API_KEY")
+    require secret("MINIMAX_API_KEY")
+    when name == "DEEPSEEK_API_KEY"
+        give secret("DEEPSEEK_API_KEY")
+    when name == "GLM_API_KEY"
+        give secret("GLM_API_KEY")
+    give secret("MINIMAX_API_KEY")
+
+-- Drop <think>…</think> blocks that some reasoning models put in the text
+task without_thinking(t)
+    give trim(regex_replace(t, "(?s)<think>.*?</think>", ""))
+
+-- First JSON object in the text (tolerates ```json … ``` and text around it)
+export task json_of_text(t)
+    let clean be without_thinking(t)
+    let direct be json_decode(clean, nothing)
+    when direct != nothing
+        give direct
+    let m be regex_capture(clean, "(?s)(\\{.*\\}|\\[.*\\])")
+    when m == nothing
+        give nothing
+    give json_decode(m[0], nothing)
+
+-- chat(prov, model, system, user, opts) → {ok, text, ms, tokens_in, tokens_out, error}
+-- opts: {"json": true, "max_tokens": n, "temperature": t, "effort": "low"|"high"|"max"}
+export task chat(prov, model, system, user, opts = {})
+    require net("api.deepseek.com")
+    require net("api.z.ai")
+    require net("api.minimax.io")
+    require time
+    let p be PROVIDERS[prov]
+    let body be {"model": model, "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+                 "max_tokens": get(opts, "max_tokens", 2000), "temperature": get(opts, "temperature", 0)}
+    when get(opts, "json", false) and prov != "minimax"
+        set body["response_format"] to {"type": "json_object"}
+    -- Reasoning effort: volume tasks use "low" (GLM-5.3 cannot turn reasoning off; DeepSeek-V4 accepts
+    -- low/high/max). MiniMax has no such parameter.
+    when prov != "minimax"
+        set body["reasoning_effort"] to get(opts, "effort", "low")
+    let t0 be now()
+    let attempt be 0
+    let last be "no attempts"
+    while attempt < 4
+        try
+            let r be http_post(p.url, body, {"Authorization": bearer(key_for(p.key))}, 120)
+            when r.ok
+                let j be json of r
+                let u be get(j, "usage", {})
+                let raw be get(j.choices[0].message, "content", nothing)
+                let text be when raw == nothing then "" otherwise without_thinking(raw)
+                -- Reasoning models can spend all of max_tokens thinking and return empty content with
+                -- status 200: that is a failure (so `for_task` moves to the fallback), not an answer.
+                when text == ""
+                    give {"ok": false, "text": nothing, "ms": round((now() - t0) * 1000), "tokens_in": get(u, "prompt_tokens", 0), "tokens_out": get(u, "completion_tokens", 0),
+                          "error": `empty answer (finish_reason={j.choices[0].finish_reason}, {get(u, "completion_tokens", 0)} tokens): raise max_tokens`}
+                give {"ok": true, "text": text, "ms": round((now() - t0) * 1000),
+                      "tokens_in": get(u, "prompt_tokens", 0), "tokens_out": get(u, "completion_tokens", 0), "error": nothing}
+            set last to `HTTP {r.status}: {slice(r.body, 0, 200)}`
+            -- A 429 for an exhausted quota (GLM code 1113, "Insufficient balance") is not transient: do not retry
+            let no_balance be r.status == 429 and (contains(r.body, "1113") or contains(lower(r.body), "insufficient balance"))
+            when no_balance or (r.status != 429 and r.status < 500)
+                give {"ok": false, "text": nothing, "ms": round((now() - t0) * 1000), "tokens_in": 0, "tokens_out": 0, "error": last}
+        recover err
+            set last to err
+        sleep(2 ** attempt)
+        set attempt to attempt + 1
+    give {"ok": false, "text": nothing, "ms": round((now() - t0) * 1000), "tokens_in": 0, "tokens_out": 0, "error": last}
+
+-- Task shortcut: use the model chosen in MODELS; if it fails, try the fallback (another provider)
+export task for_task(task_name, system, user, opts = {})
+    let m be MODELS[task_name]
+    let r be chat(m.prov, m.model, system, user, opts)
+    when r.ok
+        give merge(r, {"model": m.model})
+    let b be MODELS["fallback"]
+    give merge(chat(b.prov, b.model, system, user, opts), {"model": b.model})

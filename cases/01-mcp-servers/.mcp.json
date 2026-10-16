@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "catalog-python-typical":  { "type": "http", "url": "http://127.0.0.1:8101/mcp" },
+    "catalog-python-hardened": { "type": "http", "url": "http://127.0.0.1:8102/mcp" },
+    "catalog-synsema":         { "type": "http", "url": "http://127.0.0.1:8103/mcp" }
+  }
+}

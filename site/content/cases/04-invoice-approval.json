@@ -1,0 +1,256 @@
+{
+ "id": "invoice-approval",
+ "orden": 4,
+ "fuente": "cases/04-invoice-approval",
+ "grafico": {
+  "tipo": "puntos",
+  "total": 7,
+  "datos": [
+   {
+    "etiqueta": {
+     "en": "LLM's own confidence",
+     "es": "Confianza propia del LLM"
+    },
+    "valor": 0,
+    "synsema": false
+   },
+   {
+    "etiqueta": {
+     "en": "Arithmetic check",
+     "es": "Validación aritmética"
+    },
+    "valor": 0,
+    "synsema": false
+   },
+   {
+    "etiqueta": {
+     "en": "Jev, calibrated (judge)",
+     "es": "Jev, calibrado (judge)"
+    },
+    "valor": 7,
+    "synsema": true
+   }
+  ]
+ },
+ "en": {
+  "titulo": "Which invoices can be paid without a human",
+  "numero": "0 vs 7",
+  "numero_texto": "of 7 risky invoices caught: the LLM's own confidence vs Jev",
+  "titular": "The LLM read all 60 invoices right, and its own confidence would have paid the duplicates. Jev caught 7 of 7.",
+  "pregunta": "If the model extracts an invoice correctly, is its confidence enough to pay it without review?",
+  "grafico_titulo": "Invoices that needed a human, caught by each approval rule",
+  "grafico_nota": "7 of 60 needed review: 2 duplicates and 5 totals corrected by hand, all of them read correctly.",
+  "problema": [
+   "Accounts payable teams already use LLMs to read invoices. With current models, reading is no longer the hard part.",
+   "The hard part is deciding what can be paid without anyone looking. A duplicate read perfectly must not be paid, and a total corrected by hand must be checked."
+  ],
+  "construimos": [
+   "60 synthetic invoices from fictional companies, in OCR-like text, with the right answers. 28 carry real difficulties: OCR noise, ambiguous dates, foreign currency, discounts, hand-corrected totals, duplicates.",
+   "DeepSeek extracts the fields and reports its own confidence. An arithmetic check validates the totals. Jev, a calibrated judge model, answers four questions about the document and the extraction in one call.",
+   "What is not approved waits in approve, Synsema's human gate, with a single-use link sent by webhook."
+  ],
+  "tablas": [
+   {
+    "titulo": "Approval rules over 60 invoices",
+    "columnas": [
+     "Rule",
+     "Approved alone",
+     "Caught the 7 to review",
+     "Would be paid unreviewed",
+     "False alarms"
+    ],
+    "filas": [
+     [
+      "LLM's own confidence ≥ 0.9",
+      "60 (100%)",
+      "-|0 of 7",
+      "-|all 7",
+      "0"
+     ],
+     [
+      "Arithmetic check only",
+      "60 (100%)",
+      "-|0 of 7",
+      "-|all 7",
+      "0"
+     ],
+     [
+      "Jev (≥ 0.85 per field, ambiguous < 0.5)",
+      "46 (77%)",
+      "+|7 of 7",
+      "+|none",
+      "7 (all with OCR noise)"
+     ]
+    ]
+   },
+   {
+    "titulo": "The human gate (tested)",
+    "columnas": [
+     "Test",
+     "Result"
+    ],
+    "filas": [
+     [
+      "POST /approvals/{id} with a fake token, as an agent would try",
+      "+|403, the approval keeps waiting"
+     ],
+     [
+      "Reject the duplicate with its link",
+      "+|200, decision recorded"
+     ],
+     [
+      "Use the same link again",
+      "+|404, single use"
+     ],
+     [
+      "Run without a terminal (CI, an agent)",
+      "+|denied immediately"
+     ]
+    ]
+   }
+  ],
+  "por_que": [
+   "judge returns calibrated probabilities you can gate on. The model's self-reported confidence was 0.9 or higher on everything, duplicates included.",
+   "approve is a language primitive. Under serve it never resolves by itself: it queues, a person gets a single-use token, and it is denied when the deadline passes.",
+   "An agent cannot fake an approval. There is no code path where a program approves its own payment."
+  ],
+  "limites": [
+   "Synthetic text invoices. With real PDFs or photos, extraction will not be perfect.",
+   "Calibrated judgment does not replace business rules. A copy of an invoice already paid scored 0.47 and passed Jev; the rule \"same supplier and number already processed\" caught it.",
+   "Thresholds (0.85 and 0.5) were fixed before measuring. With real data, calibrate them on a separate set."
+  ]
+ },
+ "es": {
+  "titulo": "Qué facturas se pueden pagar sin una persona",
+  "numero": "0 vs 7",
+  "numero_texto": "de 7 facturas riesgosas atrapadas: la confianza del LLM contra Jev",
+  "titular": "El LLM leyó bien las 60 facturas, y su propia confianza habría pagado los duplicados. Jev atrapó 7 de 7.",
+  "pregunta": "Si el modelo extrae bien una factura, ¿alcanza su confianza para pagarla sin revisión?",
+  "grafico_titulo": "Facturas que necesitaban una persona, atrapadas por cada regla de aprobación",
+  "grafico_nota": "7 de 60 necesitaban revisión: 2 duplicados y 5 totales corregidos a mano, todos bien leídos.",
+  "problema": [
+   "Las áreas de cuentas a pagar ya usan LLM para leer facturas. Con los modelos actuales, leer dejó de ser lo difícil.",
+   "Lo difícil es decidir qué se paga sin que nadie lo mire. Un duplicado leído perfecto no se paga, y un total corregido a mano hay que verificarlo."
+  ],
+  "construimos": [
+   "60 facturas sintéticas de empresas ficticias, en texto tipo OCR, con sus respuestas correctas. 28 traen dificultades reales: ruido de OCR, fechas ambiguas, moneda extranjera, descuentos, totales corregidos a mano, duplicados.",
+   "DeepSeek extrae los campos e informa su propia confianza. Una validación aritmética revisa los totales. Jev, un modelo juez calibrado, responde cuatro preguntas sobre el documento y lo extraído en una sola llamada.",
+   "Lo que no se aprueba espera en approve, la compuerta humana de Synsema, con un enlace de un solo uso enviado por webhook."
+  ],
+  "tablas": [
+   {
+    "titulo": "Reglas de aprobación sobre 60 facturas",
+    "columnas": [
+     "Regla",
+     "Aprueba solas",
+     "Atrapa las 7 a revisar",
+     "Se pagarían sin revisar",
+     "Falsas alarmas"
+    ],
+    "filas": [
+     [
+      "Confianza propia del LLM ≥ 0,9",
+      "60 (100 %)",
+      "-|0 de 7",
+      "-|las 7",
+      "0"
+     ],
+     [
+      "Solo validación aritmética",
+      "60 (100 %)",
+      "-|0 de 7",
+      "-|las 7",
+      "0"
+     ],
+     [
+      "Jev (≥ 0,85 por campo, ambiguo < 0,5)",
+      "46 (77 %)",
+      "+|7 de 7",
+      "+|ninguna",
+      "7 (todas con ruido de OCR)"
+     ]
+    ]
+   },
+   {
+    "titulo": "La compuerta humana (probada)",
+    "columnas": [
+     "Prueba",
+     "Resultado"
+    ],
+    "filas": [
+     [
+      "POST /approvals/{id} con un token falso, como intentaría un agente",
+      "+|403, la aprobación sigue esperando"
+     ],
+     [
+      "Rechazar el duplicado con su enlace",
+      "+|200, decisión registrada"
+     ],
+     [
+      "Usar el mismo enlace otra vez",
+      "+|404, un solo uso"
+     ],
+     [
+      "Correr sin terminal (CI, un agente)",
+      "+|se rechaza al instante"
+     ]
+    ]
+   }
+  ],
+  "por_que": [
+   "judge devuelve probabilidades calibradas sobre las que se puede decidir. La confianza que declaró el modelo fue de 0,9 o más en todo, duplicados incluidos.",
+   "approve es una primitiva del lenguaje. Bajo serve nunca se resuelve sola: queda en cola, una persona recibe un token de un solo uso y se rechaza al vencer el plazo.",
+   "Un agente no puede fingir una aprobación. No hay camino en el código para que un programa apruebe su propio pago."
+  ],
+  "limites": [
+   "Facturas sintéticas en texto. Con PDF o fotos reales, la extracción no va a ser perfecta.",
+   "El juicio calibrado no reemplaza las reglas de negocio. Una copia de una factura ya pagada sacó 0,47 y pasó a Jev; la atrapó la regla «mismo proveedor y número ya procesados».",
+   "Los umbrales (0,85 y 0,5) se fijaron antes de medir. Con datos reales, conviene calibrarlos sobre un conjunto aparte."
+  ]
+ },
+ "codigo": [
+  {
+   "lado": "otro",
+   "archivo": "cases/04-invoice-approval/lib/invoices.syn",
+   "desde": "let SYSTEM be",
+   "hasta": "let SYSTEM be",
+   "titulo": {
+    "en": "The usual way: ask the LLM for its own confidence",
+    "es": "Lo habitual: pedirle al LLM su propia confianza"
+   },
+   "nota": {
+    "en": "The confidence field is written by the same model that extracts.",
+    "es": "El campo de confianza lo escribe el mismo modelo que extrae."
+   }
+  },
+  {
+   "lado": "synsema",
+   "archivo": "cases/04-invoice-approval/lib/invoices.syn",
+   "desde": "let j be jev.systemone",
+   "hasta": "\"ambiguous\": {\"type\"",
+   "titulo": {
+    "en": "Synsema + Jev: four calibrated judgments, one call",
+    "es": "Synsema + Jev: cuatro juicios calibrados, una llamada"
+   },
+   "nota": {
+    "en": "Probabilities over the document and the extraction.",
+    "es": "Probabilidades sobre el documento y lo extraído."
+   }
+  },
+  {
+   "lado": "synsema",
+   "archivo": "cases/04-invoice-approval/review.syn",
+   "desde": "agent Approver",
+   "hasta": "state_set(`decision",
+   "titulo": {
+    "en": "Synsema: doubtful invoices wait for a person",
+    "es": "Synsema: lo dudoso espera a una persona"
+   },
+   "nota": {
+    "en": "Under serve, approve never resolves by itself.",
+    "es": "Bajo serve, approve nunca se resuelve sola."
+   }
+  }
+ ],
+ "reproducir": "python cases/04-invoice-approval/data/generate_invoices.py\nsynsema run cases/04-invoice-approval/process.syn\nSYNSEMA_HUMAN_WEBHOOK=http://127.0.0.1:8105/channel SYNSEMA_HUMAN_PUBLIC_URL=http://localhost:8105 \\\n  synsema serve cases/04-invoice-approval/review.syn            # approval queue on :8105"
+}

@@ -1,0 +1,95 @@
+intent: "Invoice approval queue: what Jev and the sums approve goes through alone; anything doubtful waits in approve until a person decides"
+
+-- Run from the repository root (after process.syn). The webhook delivers each approve to the page with its single-use link:
+--   SYNSEMA_HUMAN_WEBHOOK=http://127.0.0.1:8105/channel SYNSEMA_HUMAN_PUBLIC_URL=http://localhost:8105 \
+--     synsema serve cases/04-invoice-approval/review.syn
+-- In production SYNSEMA_HUMAN_WEBHOOK points to Slack or email, and only whoever gets the message has the link.
+use "./lib/invoices.syn" as inv
+require serve(8105)
+require net("api.deepseek.com")
+require net("api.z.ai")
+require net("api.minimax.io")
+require net("api.typesafe.ai")
+require secret("DEEPSEEK_API_KEY")
+require secret("GLM_API_KEY")
+require secret("MINIMAX_API_KEY")
+require secret("JEV_API_KEY")
+require file.read("./cases/04-invoice-approval/*")
+require file.read("./cases/04-invoice-approval/data/*")
+require file.read("./cases/04-invoice-approval/results/*")
+require time
+
+-- One agent per doubtful invoice: it waits for the human decision. An agent cannot approve on its own:
+-- under serve, approve is queued and only the single-use token a person receives resolves it.
+agent Approver
+    let ok be approve message within 30m
+    -- One key per invoice: state_* has no atomic read-modify-write, and several agents decide at once
+    state_set(`decision:{fid}`, {"approved": ok, "t": now()})
+
+task row(x)
+    let e be when x.extracted == nothing then {} otherwise x.extracted
+    let d be inv.decision(x)
+    give {"id": x.id, "supplier": get(e, "supplier", "?"), "number": get(e, "number", ""), "currency": get(e, "currency", ""), "total": get(e, "total", nothing),
+          "date": get(e, "date", ""), "action": d.action, "reason": d.reason, "llm_confidence": get(x, "llm_confidence", nothing),
+          "jev": {"total": round_to(x.jev_total, 2), "date": round_to(x.jev_date, 2), "supplier": round_to(x.jev_supplier, 2), "ambiguous": round_to(x.jev_ambiguous, 2)}}
+
+task enqueue(r, text)
+    state_set(`text:{r.id}`, text)
+    when r.action == "review"
+        spawn Approver with fid = r.id, message = `Invoice {r.id} from {r.supplier} for {r.currency} {r.total}: {r.reason}. Approve the payment?`
+
+-- At startup: the 60 invoices already processed by process.syn
+task load()
+    let res be json_decode(read_file("./cases/04-invoice-approval/results/results.json"))
+    let originals be json_decode(read_file("./cases/04-invoice-approval/data/invoices.json"))
+    let texts be {}
+    each f in originals
+        set texts[f.id] to f.text
+    let rows be apply(row, res)
+    state_set("invoices", rows)
+    each r in rows
+        enqueue(r, texts[r.id])
+
+-- Gather "prefix:id" keys into a map id → value
+task by_prefix(prefix)
+    let m be {}
+    let all be state_all()
+    each k in keys(all)
+        when starts_with(k, prefix)
+            set m[slice(k, length(prefix))] to all[k]
+    give m
+
+cron_after(0, load)
+
+serve on 8105
+    route "GET /"
+        give respond(read_file("./cases/04-invoice-approval/review.html"), "text/html; charset=utf-8")
+
+    route "GET /api/state"
+        give {"invoices": state_get("invoices", []), "decisions": by_prefix("decision:"), "channel": by_prefix("channel:"),
+              "rules": json_decode(read_file("./cases/04-invoice-approval/results/rules.json"), nothing)}
+
+    route "GET /api/text/:id"
+        give {"text": state_get(`text:{params.id}`, "")}
+
+    -- The "channel": Synsema POSTs here for every queued approve (in production, Slack or email)
+    route "POST /channel"
+        let ev be json_decode(body of request, nothing)
+        when ev != nothing
+            -- One key per approval: webhooks arrive in parallel and a shared map lost entries
+            state_set(`channel:{get(ev, "id", "?")}`, {"message": get(ev, "message", ""), "yes": get(ev, "respond_link_yes", nothing), "no": get(ev, "respond_link_no", nothing)})
+        give {"ok": true}
+
+    -- A new invoice, live: extraction + sums + Jev + decision
+    route "POST /api/invoice"
+        timeout 120
+        expect body {text: text}
+        let previous be state_get("invoices", [])
+        let n be length(previous) + 1
+        let r0 be row(inv.process({"id": `N{n}`, "text": (json of request).text}))
+        -- A deterministic rule Jev cannot know: the same supplier + number was already processed
+        let repeated be where(previous, (p) => lower(p.supplier) == lower(r0.supplier) and p.number == r0.number)
+        let r be when length(repeated) > 0 then merge(r0, {"action": "review", "reason": `possible duplicate payment: same supplier and number as {repeated[0].id}`}) otherwise r0
+        state_set("invoices", append(previous, r))
+        enqueue(r, (json of request).text)
+        give r

@@ -1,0 +1,110 @@
+[
+ {
+  "tool": "list_products",
+  "server": "python-typical",
+  "status": 200,
+  "confidential_fields_returned": [
+   "cost_usd",
+   "internal_note",
+   "max_discount_pct",
+   "min_margin_pct",
+   "supplier"
+  ],
+  "response": "{\n  \"id\": 13,\n  \"product\": \"Ceibo AX Router\",\n  \"category\": \"Networking\",\n  \"list_price_usd\": 564.0,\n  \"stock\": 50,\n  \"cost_usd\": 386.02,\n  \"supplier\": \"Andean Tech Group\",\n  \"min_margin_pct\": 12,\n  \"max_discount_pct\": 5,\n  \"internal_note\": \"price locked until year end\"\n}{\n  \"id\": 14,\n  \"product\": \"8-port Switch\",\n  \"category\": \"Networking\",\n  \"list_price_usd\": 1393.11,\n  \"stock\": 75,\n  \"cost_usd\": 779.94,\n  \"supplier\": \"TecnoSur Wholesale\",\n  \"min_margin_pct\": 10,\n  \"max_discount_pct\": 8,\n  \"internal_note\": \"supplier with delays\"\n}{\n  \"id\": 15,\n  \"product\": \"Ombu Access Point\",\n  \"category\": "
+ },
+ {
+  "tool": "list_products",
+  "server": "python-hardened",
+  "status": 200,
+  "confidential_fields_returned": [],
+  "response": "{\n  \"id\": 13,\n  \"product\": \"Ceibo AX Router\",\n  \"category\": \"Networking\",\n  \"list_price_usd\": 564.0,\n  \"stock\": 50\n}{\n  \"id\": 14,\n  \"product\": \"8-port Switch\",\n  \"category\": \"Networking\",\n  \"list_price_usd\": 1393.11,\n  \"stock\": 75\n}{\n  \"id\": 15,\n  \"product\": \"Ombu Access Point\",\n  \"category\": \"Networking\",\n  \"list_price_usd\": 625.93,\n  \"stock\": 82\n}"
+ },
+ {
+  "tool": "list_products",
+  "server": "synsema",
+  "status": 200,
+  "confidential_fields_returned": [],
+  "response": "[{\"id\": 13, \"product\": \"Ceibo AX Router\", \"category\": \"Networking\", \"list_price_usd\": 564.0, \"stock\": 50}, {\"id\": 14, \"product\": \"8-port Switch\", \"category\": \"Networking\", \"list_price_usd\": 1393.11, \"stock\": 75}, {\"id\": 15, \"product\": \"Ombu Access Point\", \"category\": \"Networking\", \"list_price_usd\": 625.93, \"stock\": 82}]"
+ },
+ {
+  "tool": "get_product",
+  "server": "python-typical",
+  "status": 200,
+  "confidential_fields_returned": [
+   "cost_usd",
+   "internal_note",
+   "max_discount_pct",
+   "min_margin_pct",
+   "supplier"
+  ],
+  "response": "{\n  \"id\": 3,\n  \"product\": \"Pampa 13 Laptop\",\n  \"category\": \"Laptops\",\n  \"list_price_usd\": 217.24,\n  \"stock\": 113,\n  \"cost_usd\": 140.49,\n  \"supplier\": \"North Distribution Ltd\",\n  \"min_margin_pct\": 18,\n  \"max_discount_pct\": 15,\n  \"internal_note\": \"supplier with delays\"\n}"
+ },
+ {
+  "tool": "get_product",
+  "server": "python-hardened",
+  "status": 200,
+  "confidential_fields_returned": [],
+  "response": "{\n  \"id\": 3,\n  \"product\": \"Pampa 13 Laptop\",\n  \"category\": \"Laptops\",\n  \"list_price_usd\": 217.24,\n  \"stock\": 113\n}"
+ },
+ {
+  "tool": "get_product",
+  "server": "synsema",
+  "status": 200,
+  "confidential_fields_returned": [],
+  "response": "{\"id\": 3, \"product\": \"Pampa 13 Laptop\", \"category\": \"Laptops\", \"list_price_usd\": 217.24, \"stock\": 113}"
+ },
+ {
+  "tool": "quote",
+  "server": "python-typical",
+  "status": 200,
+  "confidential_fields_returned": [],
+  "response": "{\n  \"product\": \"Pampa 13 Laptop\",\n  \"quantity\": 10,\n  \"discount_applied_pct\": 15,\n  \"unit_price_usd\": 184.65,\n  \"total_usd\": 1846.5,\n  \"raised_to_minimum\": false\n}"
+ },
+ {
+  "tool": "quote",
+  "server": "python-hardened",
+  "status": 200,
+  "confidential_fields_returned": [],
+  "response": "{\n  \"product\": \"Pampa 13 Laptop\",\n  \"quantity\": 10,\n  \"discount_applied_pct\": 15,\n  \"unit_price_usd\": 184.65,\n  \"total_usd\": 1846.5,\n  \"raised_to_minimum\": false\n}"
+ },
+ {
+  "tool": "quote",
+  "server": "synsema",
+  "status": 200,
+  "confidential_fields_returned": [],
+  "response": "{\"product\": \"Pampa 13 Laptop\", \"quantity\": 10, \"discount_applied_pct\": 15, \"unit_price_usd\": 184.65, \"total_usd\": 1846.5, \"raised_to_minimum\": false}"
+ },
+ {
+  "tool": "product_detail",
+  "server": "python-typical",
+  "status": 200,
+  "confidential_fields_returned": [
+   "cost_usd",
+   "internal_note",
+   "max_discount_pct",
+   "min_margin_pct",
+   "supplier"
+  ],
+  "response": "{\n  \"id\": 3,\n  \"product\": \"Pampa 13 Laptop\",\n  \"category\": \"Laptops\",\n  \"list_price_usd\": 217.24,\n  \"stock\": 113,\n  \"cost_usd\": 140.49,\n  \"supplier\": \"North Distribution Ltd\",\n  \"min_margin_pct\": 18,\n  \"max_discount_pct\": 15,\n  \"internal_note\": \"supplier with delays\"\n}"
+ },
+ {
+  "tool": "product_detail",
+  "server": "python-hardened",
+  "status": 200,
+  "confidential_fields_returned": [
+   "cost_usd",
+   "internal_note",
+   "max_discount_pct",
+   "min_margin_pct",
+   "supplier"
+  ],
+  "response": "{\n  \"id\": 3,\n  \"product\": \"Pampa 13 Laptop\",\n  \"category\": \"Laptops\",\n  \"list_price_usd\": 217.24,\n  \"stock\": 113,\n  \"cost_usd\": 140.49,\n  \"supplier\": \"North Distribution Ltd\",\n  \"min_margin_pct\": 18,\n  \"max_discount_pct\": 15,\n  \"internal_note\": \"supplier with delays\"\n}"
+ },
+ {
+  "tool": "product_detail",
+  "server": "synsema",
+  "status": 500,
+  "confidential_fields_returned": [],
+  "response": "{\"http_error\": \"{\\\"error\\\": \\\"label_violation: response.result.content[0].text is private to company, the sink accepts (public); declassify(<that value>, \\\\\\\"<why it may be published>\\\\\\\") the scalar you want to publish and build the container outside the private branch\\\", \\\"status\\\": 500}\"}"
+ }
+]

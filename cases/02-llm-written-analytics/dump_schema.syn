@@ -1,0 +1,6 @@
+intent: "Write the schema the LLM sees, so the three variants get exactly the same input"
+use "./analyst.syn" as a
+require file.read("./cases/02-llm-written-analytics/data")
+require file.read("./cases/02-llm-written-analytics/data/*")
+require file.write("./cases/02-llm-written-analytics/comparison/*")
+write_file("./cases/02-llm-written-analytics/comparison/schema.txt", a.schema())

@@ -1,0 +1,26 @@
+{
+ "python exec": {
+  "read .env": "ALLOWED (378 bytes)",
+  "network": "ALLOWED (200)",
+  "overwrite the data": "ALLOWED (wrote and deleted)",
+  "infinite loop": "ALLOWED (still running after 3 s; a Python thread cannot be killed)"
+ },
+ "duckdb default": {
+  "read .env": "ALLOWED (382 bytes)",
+  "network": "ALLOWED (0)",
+  "overwrite the data": "ALLOWED (wrote and deleted)"
+ },
+ "duckdb restricted": {
+  "read the data": "ALLOWED (1000 rows)",
+  "read .env": "blocked (PermissionException: Permission Error: Cannot access file \".env\" - file system operations a)",
+  "network": "blocked (PermissionException: Permission Error: Cannot access file \"https://example.com/\" - file sys)",
+  "overwrite the data": "ALLOWED (wrote and deleted)"
+ },
+ "synsema run_program": {
+  "read the data": "ALLOWED (1000, 27 ms)",
+  "read .env": "blocked (Capability not granted: file_read(\".env\") — declared but above the host cei…, 25 ms)",
+  "network": "blocked (Capability not granted: net(\"example.com\") — declared but above the host ce…, 25 ms)",
+  "overwrite the data": "blocked (Capability not granted: file_write(\"cases/02-llm-written-analytics/data/x.t…, 24 ms)",
+  "infinite loop": "killed by timeout after 3008 ms; the whole child process is killed"
+ }
+}

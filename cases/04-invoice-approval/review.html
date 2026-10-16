@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Invoice queue</title>
+<style>
+  :root { --bg: #f6f7f9; --card: #fff; --ink: #16181d; --quiet: #5d6470; --line: #e3e6eb; --accent: #2563eb; --ok: #15803d; --bad: #b91c1c; --warn: #b45309; --code: #f1f3f6; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0f1115; --card: #171a21; --ink: #e8eaee; --quiet: #9aa3af; --line: #2a2f3a; --accent: #60a5fa; --ok: #4ade80; --bad: #f87171; --warn: #fbbf24; --code: #11141a; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1150px; margin: 0 auto; padding: 20px 16px 48px; }
+  h1 { font-size: 22px; margin: 0 0 4px; } h2 { font-size: 16px; margin: 22px 0 8px; }
+  .lead { color: var(--quiet); margin: 0 0 14px; max-width: 840px; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 760px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+  .kpi, .panel { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .kpi b { display: block; font-size: 24px; } .kpi span { color: var(--quiet); font-size: 13px; }
+  .pend { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 860px) { .pend { grid-template-columns: 1fr; } }
+  pre { background: var(--code); border-radius: 8px; padding: 10px; margin: 8px 0; white-space: pre-wrap; font-size: 12px; max-height: 260px; overflow: auto; }
+  .reason { color: var(--warn); font-size: 13.5px; } .sub { color: var(--quiet); font-size: 12.5px; }
+  .bot { display: flex; gap: 8px; } button { font: inherit; border: 0; border-radius: 8px; padding: 8px 14px; font-weight: 600; cursor: pointer; color: #fff; }
+  .si { background: var(--ok); } .no { background: var(--bad); } .ir { background: var(--accent); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+  td, th { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .tag { font-size: 12px; font-weight: 600; } .tag.auto { color: var(--ok); } .tag.pend { color: var(--warn); } .tag.rech { color: var(--bad); }
+  textarea { width: 100%; min-height: 160px; font: 12.5px ui-monospace, Consolas, monospace; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Invoice queue</h1>
+  <p class="lead">DeepSeek extracts the data, the sums are checked, and Jev judges with calibrated probabilities whether the extraction matches the document and whether the document is ambiguous. What agrees is approved alone. Anything doubtful waits in <code>approve</code>: no agent can approve it, only a person with the single-use link.</p>
+  <div class="kpis" id="kpis"></div>
+  <h2>Waiting for a person</h2>
+  <div class="pend" id="pend"></div>
+  <h2>Load a new invoice</h2>
+  <section class="panel"><textarea id="nueva" placeholder="Paste an invoice text (as it comes out of OCR)"></textarea><div class="bot" style="margin-top:8px"><button class="ir" id="enviar">Process</button><span class="sub" id="nueva-res"></span></div></section>
+  <h2>What would each rule approve alone? (60 invoices)</h2>
+  <section class="panel" id="crit"></section>
+  <h2>All invoices</h2>
+  <section class="panel"><table><thead><tr><th>Invoice</th><th>Supplier</th><th>Total</th><th>Status</th><th>Reason</th><th>LLM confidence</th><th>Jev ambiguous</th></tr></thead><tbody id="tabla"></tbody></table></section>
+</main>
+<script>
+  const esc = (s) => String(s ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+  const textos = {};
+  async function texto(id) { if (!textos[id]) textos[id] = (await (await fetch("/api/text/" + id)).json()).text; return textos[id]; }
+  function status(f, d) {
+    if (f.action === "approve") return ["auto", "approved alone"];
+    const x = d[f.id]; if (!x) return ["pend", "waiting"];
+    return x.approved ? ["auto", "approved by a person"] : ["rech", "rejected"];
+  }
+  async function decide(link) { await fetch(link); setTimeout(load, 600); }
+  async function load() {
+    const e = await (await fetch("/api/state")).json();
+    const fs = e.invoices, d = e.decisions, channel = e.channel;
+    const auto = fs.filter((f) => f.action === "approve").length, pend = fs.filter((f) => f.action !== "approve" && !d[f.id]).length;
+    document.getElementById("kpis").innerHTML = [[fs.length, "invoices"], [auto, "approved alone"], [pend, "waiting for a person"], [Object.keys(d).length, "decided by people"]]
+      .map(([n, t]) => `<div class="kpi"><b>${n}</b><span>${t}</span></div>`).join("");
+    const pending = fs.filter((f) => f.action !== "approve" && !d[f.id]);
+    const byMsg = Object.values(channel);
+    const cards = [];
+    for (const f of pending) {
+      const c = byMsg.find((x) => x.message.startsWith(`Invoice ${f.id} `));
+      cards.push(`<section class="panel"><b>${esc(f.id)} · ${esc(f.supplier)}</b> <span class="sub">${esc(f.currency)} ${esc(f.total)} · ${esc(f.date)}</span>
+        <div class="reason">${esc(f.reason)}</div><div class="sub">Jev: total ${f.jev.total} · date ${f.jev.date} · supplier ${f.jev.supplier} · ambiguous ${f.jev.ambiguous} · the LLM said ${f.llm_confidence}</div>
+        <pre>${esc(await texto(f.id))}</pre>
+        <div class="bot">${c ? `<button class="si" onclick="decide('${c.yes}')">Approve payment</button><button class="no" onclick="decide('${c.no}')">Reject</button>` : `<span class="sub">waiting for the channel link…</span>`}</div></section>`);
+    }
+    document.getElementById("pend").innerHTML = cards.join("") || `<section class="panel sub">Nothing pending.</section>`;
+    document.getElementById("tabla").innerHTML = fs.map((f) => { const [cls, t] = status(f, d); return `<tr><td>${esc(f.id)}</td><td>${esc(f.supplier)}</td><td>${esc(f.currency)} ${esc(f.total)}</td><td class="tag ${cls}">${t}</td><td>${esc(f.reason)}</td><td>${esc(f.llm_confidence)}</td><td>${esc(f.jev.ambiguous)}</td></tr>`; }).join("");
+    const cr = e.rules || [];
+    document.getElementById("crit").innerHTML = `<table><thead><tr><th>Rule</th><th>Approved alone</th><th>Catches those to review</th><th>Would be paid unreviewed</th><th>False alarms</th></tr></thead><tbody>` +
+      cr.map((c) => `<tr><td>${esc(c.rule)}</td><td>${c.approved_alone} (${c.pct_auto}%)</td><td>${esc(c.reviews_caught)}</td><td>${esc((c.paid_unreviewed || []).join(", ") || "none")}</td><td>${c.false_alarms}</td></tr>`).join("") + "</tbody></table>";
+  }
+  document.getElementById("enviar").onclick = async () => {
+    const t = document.getElementById("nueva").value.trim(); if (!t) return;
+    const out = document.getElementById("nueva-res"); out.textContent = "Processing…";
+    const r = await (await fetch("/api/invoice", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: t }) })).json();
+    out.textContent = `${r.id}: ${r.action === "approve" ? "approved alone" : "sent to review"} · ${r.reason}`; setTimeout(load, 800);
+  };
+  load(); setInterval(load, 5000);
+</script>
+</body>
+</html>

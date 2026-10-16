@@ -1,0 +1,41 @@
+{
+  "ok": true,
+  "files": 1,
+  "errors": [],
+  "warnings": [],
+  "declassify": [
+    {
+      "file": "cases/01-mcp-servers/servers/mcp.syn",
+      "line": 57,
+      "column": 45,
+      "reason": "the granted discount is shown to the customer",
+      "to": null,
+      "constant": false
+    },
+    {
+      "file": "cases/01-mcp-servers/servers/mcp.syn",
+      "line": 58,
+      "column": 39,
+      "reason": "quoted sale price: this is what the customer is told",
+      "to": null,
+      "constant": false
+    },
+    {
+      "file": "cases/01-mcp-servers/servers/mcp.syn",
+      "line": 59,
+      "column": 34,
+      "reason": "quote total",
+      "to": null,
+      "constant": false
+    },
+    {
+      "file": "cases/01-mcp-servers/servers/mcp.syn",
+      "line": 60,
+      "column": 42,
+      "reason": "the customer must know the full discount was not applied",
+      "to": null,
+      "constant": false
+    }
+  ],
+  "declassify_static_only": true
+}

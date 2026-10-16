@@ -1,0 +1,45 @@
+-- Multinomial Naive Bayes for short text, in plain Synsema. The model is a map that serializes to JSON.
+
+let STOPWORDS be ["the", "and", "for", "with", "from", "your", "you", "how", "that", "this", "are", "our", "its", "who", "what", "into", "about"]
+
+export task tokens(s)
+    give where(regex_find_all(lower(s), "[a-z]{3,}"), (w) => not (w in STOPWORDS))
+
+-- rows: [{text, y}] → model {classes, docs, total, counts, V, n}
+export task train(rows, classes)
+    let counts be {}
+    let total be {}
+    let docs be {}
+    each k in classes
+        set counts[k] to {}
+        set total[k] to 0
+        set docs[k] to 0
+    let vocab be {}
+    each r in rows
+        set docs[r.y] to docs[r.y] + 1
+        let c be counts[r.y]
+        each w in tokens(r.text)
+            set c[w] to get(c, w, 0) + 1
+            set vocab[w] to true
+            set total[r.y] to total[r.y] + 1
+        set counts[r.y] to c
+    give {"classes": classes, "docs": docs, "total": total, "counts": counts, "V": length(vocab), "n": length(rows)}
+
+-- → {label, prob, probs}; prob = softmax of the log-probabilities
+export task predict(m, text)
+    let ws be tokens(text)
+    let lps be {}
+    each k in m.classes
+        let lp be ln((m.docs[k] + 1) / (m.n + length(m.classes)))
+        each w in ws
+            set lp to lp + ln((get(m.counts[k], w, 0) + 1) / (m.total[k] + m.V))
+        set lps[k] to lp
+    let mx be max(values(lps))
+    let z be sum(apply((k) => exp(lps[k] - mx), m.classes))
+    let probs be {}
+    let best be nothing
+    each k in m.classes
+        set probs[k] to exp(lps[k] - mx) / z
+        when best == nothing or probs[k] > probs[best]
+            set best to k
+    give {"label": best, "prob": probs[best], "probs": probs}

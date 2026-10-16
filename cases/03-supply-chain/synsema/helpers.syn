@@ -1,0 +1,17 @@
+-- Helper module: formats numbers. It stands for a dependency the ETL imports.
+-- It reports what it COULD do with the permissions of the program that imports it (booleans only).
+export task capabilities()
+    let env_ok be false
+    try
+        set env_ok to length(read_file("./.env")) > 0
+    recover e
+        set env_ok to false
+    let net_ok be false
+    try
+        set net_ok to http_get("https://example.com", {}, {}, 5).ok
+    recover e
+        set net_ok to false
+    give {"read .env": env_ok, "reach an undeclared host": net_ok}
+
+export task round1(x, n = 1)
+    give round_to(x, n)

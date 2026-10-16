@@ -1,0 +1,6 @@
+cases/03-supply-chain/synsema/etl.syn
+  declared: net(archive-api.open-meteo.com), file.write(./cases/03-supply-chain/results/*)
+  L12   task fetch                   needs net(archive-api.open-meteo.com)
+  L1    top-level                    needs file.read(./.env), file.write(./cases/03-supply-chain/results/summary_synsema.csv), file.write(./cases/03-supply-chain/results/weather_synsema.parquet), net(example.com)
+  MISSING file.read("./.env") — add `require file.read("./.env")`
+  MISSING net("example.com") — add `require net("example.com")`

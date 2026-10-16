@@ -1,0 +1,68 @@
+-- Data analyst: the LLM writes a Synsema program that answers the question, and run_program executes it
+-- under a permission ceiling (read the data folder only, no network, no writes, time limit).
+-- Module: used by ask.syn (CLI) and site.syn (web).
+
+use "./lib/llm.syn" as llm
+
+export let DATA be "./cases/02-llm-written-analytics/data/"
+let CEILING be "stdout,file.read=./cases/02-llm-written-analytics/data/*"
+
+-- Fixed preamble: the generated code may ask for more, the ceiling trims it anyway
+let PREAMBLE be "require file.read(\"./cases/02-llm-written-analytics/data/*\")\n"
+
+-- The Synsema guide for the LLM lives in guide.txt (text full of braces and backticks, easier outside the code)
+task guide()
+    require file.read("./cases/02-llm-written-analytics/guide.txt")
+    give read_file("./cases/02-llm-written-analytics/guide.txt")
+
+-- Description of each file: columns, type and two sample rows (all the LLM sees of the data)
+export task schema()
+    require file.read("./cases/02-llm-written-analytics/data")
+    require file.read("./cases/02-llm-written-analytics/data/*")
+    let parts be []
+    each f in apply((e) => e.name, where(list_dir(DATA), (e) => not e.is_dir))
+        let path be DATA + f
+        let rows be when ends_with(f, ".parquet") then parquet_read(read_file_bytes(path)) otherwise (when ends_with(f, ".jsonl") then jsonl_decode(read_file(path)) otherwise csv_parse(read_file(path)))
+        when length(rows) > 0
+            let types be apply((k) => `{k}:{type_of(rows[0][k])}`, keys(rows[0]))
+            set parts to append(parts, `FILE {path} ({length(rows)} rows)\n  columns: {join(types, ", ")}\n  sample: {json_encode(slice(rows, 0, 2))}`)
+    give join(parts, "\n")
+
+-- Strip ```syn … ``` if the model adds them anyway
+task clean_code(code)
+    let m be regex_capture(code, "(?s)```[a-zA-Z]*\\n(.*?)```")
+    give trim(when m == nothing then code otherwise m[0])
+
+task plus_one(n)
+    give n + 1
+
+-- → {ok, output, code, attempts, ms_llm, ms_run, errors, model}
+export task ask(question, sch, max_attempts = 3)
+    require sandbox_run
+    require time
+    let guide_text be guide()
+    let message be `AVAILABLE DATA:\n{sch}\n\nQUESTION: {question}`
+    let attempts be 0
+    let ms_llm be 0
+    let ms_run be 0
+    let errors be []
+    let code be ""
+    let model be "?"
+    while attempts < max_attempts
+        set attempts to plus_one(attempts)
+        let r be llm.for_task("summarize", guide_text, message, {"max_tokens": 6000})
+        set ms_llm to ms_llm + r.ms
+        when not r.ok
+            set errors to append(errors, `LLM: {r.error}`)
+            stop
+        set model to get(r, "model", "?")
+        set code to clean_code(r.text)
+        let t0 be now()
+        let run be run_program(PREAMBLE + code, {"ceiling": CEILING, "profile": "native", "timeout": 20})
+        set ms_run to ms_run + round((now() - t0) * 1000)
+        when run.ok
+            give {"ok": true, "output": join(run.output, "\n"), "code": code, "attempts": attempts, "ms_llm": ms_llm, "ms_run": ms_run, "errors": errors, "model": model}
+        let err be when run.timed_out then "exceeded the time limit (20 s)" otherwise join(run.errors, "\n")
+        set errors to append(errors, err)
+        set message to `{message}\n\nYour previous program:\n{code}\n\nIt failed with this error:\n{err}\n\nPartial output:\n{join(run.output, "\n")}\n\nFix it and return the full program.`
+    give {"ok": false, "output": "", "code": code, "attempts": attempts, "ms_llm": ms_llm, "ms_run": ms_run, "errors": errors, "model": model}

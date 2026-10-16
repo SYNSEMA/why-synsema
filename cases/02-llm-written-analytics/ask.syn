@@ -1,0 +1,31 @@
+intent: "Answer natural-language questions about scattered data files: the LLM writes Synsema and it runs under a permission ceiling"
+
+-- Usage: synsema run cases/02-llm-written-analytics/ask.syn -- "Which city had the most rain?"
+--        add --json as the first argument for JSON output (used by the comparison)
+use "./analyst.syn" as a
+require sandbox_run
+require net("api.deepseek.com")
+require net("api.z.ai")
+require net("api.minimax.io")
+require secret("DEEPSEEK_API_KEY")
+require secret("GLM_API_KEY")
+require secret("MINIMAX_API_KEY")
+require file.read("./cases/02-llm-written-analytics/data")
+require file.read("./cases/02-llm-written-analytics/guide.txt")
+require file.read("./cases/02-llm-written-analytics/data/*")
+require time
+
+let argv be args()
+let as_json be length(argv) > 0 and argv[0] == "--json"
+let question be join(when as_json then slice(argv, 1) otherwise argv, " ")
+when question == ""
+    raise("missing the question: synsema run ask.syn -- \"your question\"")
+
+let r be a.ask(question, a.schema())
+when as_json
+    print(json_encode(r))
+otherwise
+    print(r.output)
+    eprint(`[{r.model} · {r.attempts} attempt(s) · LLM {r.ms_llm} ms · run {r.ms_run} ms]`)
+    when not r.ok
+        eprint(`could not answer: {r.errors}`)

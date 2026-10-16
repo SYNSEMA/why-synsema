@@ -1,0 +1,147 @@
+/* Concept: an evidence room. A dark band with the thesis; each case is an exhibit with its impact
+   number and its chart; Synsema in cobalt, "the usual way" in graphite; red/green only for states. */
+@font-face { font-family: "Unbounded"; font-weight: 800; font-display: swap; src: url("/assets/fonts/unbounded-latin-800-normal.woff2") format("woff2"); }
+@font-face { font-family: "Unbounded"; font-weight: 500; font-display: swap; src: url("/assets/fonts/unbounded-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Sans"; font-weight: 400; font-display: swap; src: url("/assets/fonts/ibm-plex-sans-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Sans"; font-weight: 600; font-display: swap; src: url("/assets/fonts/ibm-plex-sans-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-weight: 400; font-display: swap; src: url("/assets/fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-weight: 500; font-display: swap; src: url("/assets/fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2"); }
+
+:root {
+  --paper: #f4f5f7; --surface: #ffffff; --ink: #0d111b; --ink-2: #474d5a; --ink-3: #737a87; --rule: #dfe2e8; --code: #eef0f4;
+  --cobalt: #2445f5; --cobalt-soft: #e4e9ff; --graphite: #9aa0ab; --graphite-soft: #e6e8ec;
+  --bad: #d23a3f; --good: #11924a;
+  --night: #0b0f1a; --night-2: #141a2a; --night-ink: #eef1f8; --night-ink-2: #a8b0c3; --night-cobalt: #7c90ff; --night-rule: #232b40;
+  --display: "Unbounded", "Arial Black", "Segoe UI", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", "Cascadia Code", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f131d; --surface: #151a26; --ink: #eef1f8; --ink-2: #b4bbcb; --ink-3: #8a92a5; --rule: #262d3e; --code: #111622;
+    --cobalt: #7c90ff; --cobalt-soft: #1b2450; --graphite: #6d7486; --graphite-soft: #232a3a; --bad: #f06a6e; --good: #3fcf7e;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f131d; --surface: #151a26; --ink: #eef1f8; --ink-2: #b4bbcb; --ink-3: #8a92a5; --rule: #262d3e; --code: #111622;
+  --cobalt: #7c90ff; --cobalt-soft: #1b2450; --graphite: #6d7486; --graphite-soft: #232a3a; --bad: #f06a6e; --good: #3fcf7e;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.6 var(--body); }
+a { color: var(--cobalt); text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 3px; border-radius: 4px; }
+.salto { position: absolute; left: -999px; } .salto:focus { left: 16px; top: 16px; background: var(--surface); padding: 8px 12px; z-index: 5; }
+.ancho { max-width: 1180px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.mono { font-family: var(--mono); }
+.etiqueta { font: 500 12.5px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+
+/* Barra superior */
+.barra { background: var(--night); color: var(--night-ink); }
+.barra .ancho { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 14px; }
+.marca { font: 800 18px/1 var(--display); color: var(--night-ink); text-decoration: none; letter-spacing: -.01em; }
+.marca b { color: var(--night-cobalt); font-weight: 800; }
+.idiomas { display: flex; gap: 6px; font: 500 13px var(--mono); }
+.idiomas a { color: var(--night-ink-2); text-decoration: none; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--night-rule); }
+.idiomas a[aria-current="true"] { color: var(--night-ink); border-color: var(--night-cobalt); }
+
+/* Portada */
+.tesis { background: var(--night); color: var(--night-ink); padding-block: 56px 72px; position: relative; overflow: hidden; }
+.tesis::after { content: ""; position: absolute; inset: auto -10% -60% 40%; height: 120%; background: radial-gradient(closest-side, rgba(124,144,255,.18), transparent); pointer-events: none; }
+.tesis .etiqueta { color: var(--night-ink-2); }
+.tesis h1 { font: 800 clamp(48px, 10.5vw, 136px)/.95 var(--display); letter-spacing: -.035em; margin: 18px 0 26px; text-wrap: balance; }
+.tesis h1 .q { color: var(--night-cobalt); }
+.tesis p.bajada { font-size: clamp(18px, 2.1vw, 22px); line-height: 1.5; max-width: 760px; color: var(--night-ink); margin: 0 0 22px; }
+.tesis .metodo { font: 400 13.5px var(--mono); color: var(--night-ink-2); }
+.marcador { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1px; margin-top: 44px; background: var(--night-rule); border: 1px solid var(--night-rule); border-radius: 14px; overflow: hidden; position: relative; z-index: 1; }
+.marcador a { background: var(--night-2); padding: 18px 18px 20px; color: var(--night-ink); text-decoration: none; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.marcador a:hover { background: #1a2136; }
+.marcador b { font: 800 clamp(24px, 2.6vw, 34px)/1 var(--display); color: var(--night-cobalt); letter-spacing: -.02em; }
+.marcador span { font-size: 13.5px; line-height: 1.4; color: var(--night-ink-2); }
+@media (max-width: 900px) { .marcador { grid-template-columns: repeat(2, minmax(0, 1fr)); } .marcador a:last-child { grid-column: span 2; } }
+
+/* Pruebas (casos) en la portada */
+.prueba { padding-block: 72px; border-bottom: 1px solid var(--rule); }
+.prueba .ancho { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 56px; align-items: center; }
+.prueba:nth-of-type(even) .ancho > .texto { order: 2; }
+@media (max-width: 900px) { .prueba .ancho { grid-template-columns: 1fr; gap: 28px; } .prueba:nth-of-type(even) .ancho > .texto { order: 0; } }
+.prueba h2 { font: 800 clamp(26px, 3.2vw, 40px)/1.08 var(--display); letter-spacing: -.02em; margin: 10px 0 14px; text-wrap: balance; }
+.numero { font: 800 clamp(64px, 9vw, 120px)/.9 var(--display); color: var(--cobalt); letter-spacing: -.04em; margin: 4px 0 8px; }
+.numero-texto { font-size: 15.5px; color: var(--ink-2); max-width: 46ch; margin: 0 0 18px; }
+.titular { font-size: 19px; line-height: 1.5; margin: 0 0 22px; max-width: 52ch; }
+.boton { display: inline-flex; align-items: center; gap: 10px; font: 600 16px var(--body); color: #fff; background: var(--cobalt); padding: 12px 18px; border-radius: 10px; text-decoration: none; }
+:root[data-theme="dark"] .boton { color: var(--night); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .boton { color: var(--night); } }
+.boton:hover { filter: brightness(1.08); }
+figure.grafico { margin: 0; background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 22px 22px 16px; min-width: 0; }
+figure.grafico figcaption { display: grid; gap: 4px; margin-top: 10px; }
+figure.grafico figcaption b { font-size: 15px; } figure.grafico figcaption span { font-size: 13.5px; color: var(--ink-3); }
+figure.grafico svg { width: 100%; height: auto; display: block; overflow: visible; }
+
+/* SVG: todo a partir de tokens */
+.g-syn { fill: var(--cobalt); } .g-otro { fill: var(--graphite); } .g-vacio { fill: none; stroke: var(--graphite); stroke-width: 2; stroke-dasharray: 5 4; }
+.g-hueco { fill: none; stroke: var(--graphite); stroke-width: 2.5; } .g-pista { fill: var(--graphite-soft); }
+.g-txt { fill: var(--ink); font-family: var(--body); } .g-txt2 { fill: var(--ink-3); font-family: var(--body); }
+.g-val { fill: var(--ink); font-family: var(--display); } .g-val.syn { fill: var(--cobalt); }
+.g-eje { stroke: var(--rule); stroke-width: 1.5; }
+.g-val-in { fill: var(--surface); font-family: var(--display); }
+.g-dona-pista { fill: none; stroke: var(--graphite-soft); }
+.g-dona-syn { fill: none; stroke: var(--cobalt); } .g-dona-otro { fill: none; stroke: var(--graphite); }
+
+/* Método y pie */
+.metodo-bloque { padding-block: 64px; }
+.metodo-bloque h2 { font: 800 28px/1.1 var(--display); margin: 0 0 16px; letter-spacing: -.02em; }
+.metodo-bloque ul { margin: 0; padding-left: 20px; max-width: 70ch; color: var(--ink-2); } .metodo-bloque li { margin: 6px 0; }
+footer { background: var(--night); color: var(--night-ink-2); padding-block: 28px; font-size: 14px; }
+footer .ancho { display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; }
+footer a { color: var(--night-ink); }
+
+/* Página de caso */
+.caso-tesis { background: var(--night); color: var(--night-ink); padding-block: 44px 56px; }
+.caso-tesis .etiqueta { color: var(--night-ink-2); }
+.caso-tesis h1 { font: 800 clamp(34px, 5.4vw, 64px)/1.02 var(--display); letter-spacing: -.03em; margin: 12px 0 14px; text-wrap: balance; }
+.caso-tesis .pregunta { font-size: clamp(18px, 2vw, 21px); max-width: 62ch; color: var(--night-ink); margin: 0; }
+.caso-tesis .ancho > a { color: var(--night-ink-2); font: 500 13px var(--mono); text-decoration: none; }
+.impacto { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 40px; align-items: center; margin-top: -28px; }
+@media (max-width: 900px) { .impacto { grid-template-columns: 1fr; margin-top: 24px; gap: 20px; } }
+.impacto .resumen { background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 24px; }
+.impacto .numero { font-size: clamp(56px, 7vw, 96px); }
+.seccion { padding-block: 44px 8px; }
+.seccion h2 { font: 800 clamp(22px, 2.6vw, 30px)/1.15 var(--display); letter-spacing: -.02em; margin: 0 0 16px; }
+.prosa { max-width: 70ch; } .prosa p { margin: 0 0 14px; }
+.lista { margin: 0; padding-left: 0; list-style: none; display: grid; gap: 12px; max-width: 76ch; }
+.lista li { padding-left: 30px; position: relative; } .lista li::before { content: ""; position: absolute; left: 4px; top: .7em; width: 12px; height: 3px; background: var(--cobalt); border-radius: 2px; }
+.lista.gris li::before { background: var(--graphite); }
+.tabla { overflow-x: auto; background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; margin-bottom: 20px; }
+.tabla table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 560px; }
+.tabla caption { text-align: left; padding: 14px 16px 4px; font-weight: 600; }
+.tabla th, .tabla td { text-align: left; padding: 11px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.tabla th { font: 500 12.5px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); }
+.tabla tr:last-child td { border-bottom: 0; }
+.tabla td:first-child { color: var(--ink-2); }
+.est { display: inline-flex; gap: 8px; align-items: baseline; }
+.est i { font-style: normal; font-weight: 700; } .est.bueno i { color: var(--good); } .est.malo i { color: var(--bad); } .est.neutro i { color: var(--ink-3); }
+.lados { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 900px) { .lados { grid-template-columns: 1fr; } }
+.columna { display: grid; gap: 18px; min-width: 0; }
+.columna > .etiqueta { margin-bottom: -8px; }
+.codigo { background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; min-width: 0; }
+.codigo.syn { border-color: var(--cobalt); }
+.codigo header { padding: 14px 16px 6px; } .codigo header b { display: block; font-size: 15.5px; } .codigo header span { font-size: 14px; color: var(--ink-2); }
+.codigo pre { margin: 0; padding: 14px 16px; background: var(--code); font: 13px/1.55 var(--mono); overflow-x: auto; white-space: pre; }
+.codigo footer { padding: 8px 16px 12px; font: 12px var(--mono); color: var(--ink-3); background: none; }
+.reproducir pre { margin: 0; padding: 16px; border-radius: 12px; background: var(--night); color: var(--night-ink); font: 13.5px/1.6 var(--mono); overflow-x: auto; white-space: pre; }
+.compartir { display: flex; flex-wrap: wrap; gap: 10px; }
+.compartir a, .compartir button { font: 600 15px var(--body); padding: 10px 14px; border-radius: 10px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); text-decoration: none; cursor: pointer; }
+.navegacion { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-block: 40px 64px; }
+.navegacion a { text-decoration: none; display: grid; gap: 4px; max-width: 48%; }
+.navegacion a span { font: 500 12.5px var(--mono); color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; }
+.navegacion a b { font: 800 18px/1.2 var(--display); color: var(--ink); }
+@media (prefers-reduced-motion: no-preference) {
+  .tesis h1, .tesis .bajada, .marcador { animation: subir .7s ease-out both; }
+  .tesis .bajada { animation-delay: .08s; } .marcador { animation-delay: .16s; }
+  @keyframes subir { from { transform: translateY(14px); opacity: .001; } to { transform: none; opacity: 1; } }
+}

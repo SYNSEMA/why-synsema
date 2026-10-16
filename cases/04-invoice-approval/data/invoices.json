@@ -1,0 +1,966 @@
+[
+ {
+  "id": "F001",
+  "text": "AUSTRAL PAPER LLC\nINVOICE A  No. 0004-00030500\nIssue date (dd/mm/yyyy): 19/07/2026\nCustomer: Our Company Inc\n--------------------------------------------\nSupport hours               14 x    28,867.00      404,138.00\nBleach 5 L                   7 x    44,545.68      311,819.76\nBleach 5 L                  17 x     8,914.29      151,542.93\nThermal labels               8 x    35,647.44      285,179.52\n--------------------------------------------\nSubtotal USD                   1,152,680.21\nVAT 21%                      242,062.84\nTOTAL DUE USD 1,394,743.05",
+  "difficulties": [
+   "foreign currency"
+  ],
+  "truth": {
+   "supplier": "Austral Paper LLC",
+   "number": "0004-00030500",
+   "date": "2026-07-19",
+   "currency": "USD",
+   "subtotal": 1152680.21,
+   "discount": 0.0,
+   "vat": 242062.84,
+   "total": 1394743.05
+  }
+ },
+ {
+  "id": "F002",
+  "text": "SOUTH CLEANING CO\nINVOICE A  No. 0003-00024499\nIssue date (dd/mm/yyyy): 18/06/2026\nCustomer: Our Company Inc\n--------------------------------------------\nA4 paper ream x500          11 x    24.674,60      271.420,60\nSupport hours                4 x    29.477,68      117.910,72\nMonthly maintenance          1 x     7.642,74        7.642,74\nBlack toner                  4 x    36.540,69      146.162,76\n--------------------------------------------\nSubtotal ARS                     543.136,82\nVAT 21%                      114.058,73\nTOTAL DUE ARS 657.195,55",
+  "difficulties": [],
+  "truth": {
+   "supplier": "South Cleaning Co",
+   "number": "0003-00024499",
+   "date": "2026-06-18",
+   "currency": "ARS",
+   "subtotal": 543136.82,
+   "discount": 0.0,
+   "vat": 114058.73,
+   "total": 657195.55
+  }
+ },
+ {
+  "id": "F003",
+  "text": "ANDES HARDWARE INC\nINVOICE A  No. 0006-00059156\nIssue date (dd/mm/yyyy): 05/09/2026\nCustomer: Our Company Inc\n--------------------------------------------\nCat6 UTP cable (m)          19 x    44.505,81      845.610,39\nBlack toner                  4 x    25.557,44      102.229,76\n--------------------------------------------\nSubtotal ARS                     947.840,15\nVAT 10.5%                       99.523,22\nTOTAL DUE ARS 1.047.363,37",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Andes Hardware Inc",
+   "number": "0006-00059156",
+   "date": "2026-09-05",
+   "currency": "ARS",
+   "subtotal": 947840.15,
+   "discount": 0.0,
+   "vat": 99523.22,
+   "total": 1047363.37
+  }
+ },
+ {
+  "id": "F004",
+  "text": "ANDES HARDWARE INC\nINVOICE A  No. 0002-00023682\nIssue date (dd/mm/yyyy): 11/09/2026\nCustomer: Our Company Inc\n--------------------------------------------\nSupport hours               16 x       925,17       14.802,72\nBlack toner                 18 x    27.292,51      491.265,18\n--------------------------------------------\nSubtotal ARS                     506.067,90\nVAT 21%                      106.274,26\nTOTAL DUE ARS 612.342,16",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Andes Hardware Inc",
+   "number": "0002-00023682",
+   "date": "2026-09-11",
+   "currency": "ARS",
+   "subtotal": 506067.9,
+   "discount": 0.0,
+   "vat": 106274.26,
+   "total": 612342.16
+  }
+ },
+ {
+  "id": "F005",
+  "text": "PATAGONIA FREIGHT LLC\nINVOICE A  No. 0008-00066340\nIssue date (dd/mm/yyyy): 06/01/26\nCustomer: Our Company Inc\n--------------------------------------------\nCat6 UTP cable (m)           4 x     8.256,20       33.024,80\nNitrile gloves x100         14 x    17.369,50      243.173,00\nPacking tape                 2 x    30.674,86       61.349,72\n--------------------------------------------\nSubtotal ARS                     337.547,52\nVAT 21%                       70.884,98\nTOTAL DUE ARS 408.432,50",
+  "difficulties": [
+   "ambiguous dd/mm date"
+  ],
+  "truth": {
+   "supplier": "Patagonia Freight LLC",
+   "number": "0008-00066340",
+   "date": "2026-01-06",
+   "currency": "ARS",
+   "subtotal": 337547.52,
+   "discount": 0.0,
+   "vat": 70884.98,
+   "total": 408432.5
+  }
+ },
+ {
+  "id": "F006",
+  "text": "ANDES HARDWARE INC\nINVOICE A  No. 0008-00006476\nIssue date (dd/mm/yyyy): 05/03/2026\nCustomer: Our Company Inc\n--------------------------------------------\nErgonomic chair             16 x     3.338,45       53.415,20\nFreight service              2 x    38.516,18       77.032,36\nPacking tape                10 x     2.336,46       23.364,60\nCat6 UTP cable (m)           6 x    18.238,02      109.428,12\n--------------------------------------------\nSubtotal ARS                     263.240,28\nVAT 21%                       55.280,46\nTOTAL DUE ARS 318.520,74",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Andes Hardware Inc",
+   "number": "0008-00006476",
+   "date": "2026-03-05",
+   "currency": "ARS",
+   "subtotal": 263240.28,
+   "discount": 0.0,
+   "vat": 55280.46,
+   "total": 318520.74
+  }
+ },
+ {
+  "id": "F007",
+  "text": "*** DUPLICATE - NOT VALID AS ORIGINAL ***\nPLATA SUPPLIES LLC\nINVOICE A  No. 0001-00050118\nIssue date (dd/mm/yyyy): 18/05/2026\nCustomer: Our Company Inc\n--------------------------------------------\nMonthly maintenance          5 x    39.760,21      198.801,05\nWater jug 20 L              14 x    22.213,07      310.982,98\n--------------------------------------------\nSubtotal ARS                     509.784,03\nVAT 10.5%                       53.527,32\nTOTAL DUE ARS 563.311,35",
+  "difficulties": [
+   "duplicate"
+  ],
+  "truth": {
+   "supplier": "Plata Supplies LLC",
+   "number": "0001-00050118",
+   "date": "2026-05-18",
+   "currency": "ARS",
+   "subtotal": 509784.03,
+   "discount": 0.0,
+   "vat": 53527.32,
+   "total": 563311.35
+  }
+ },
+ {
+  "id": "F008",
+  "text": "PATAGONIA FREIGHT LLC\nINVOICE A  No. 0003-00009423\nIssue date (dd/mm/yyyy): 06/01/2026\nCustomer: Our Company Inc\n--------------------------------------------\nPacking tape                 8 x    38.444,35      307.554,80\nWater jug 20 L              14 x    12.168,10      170.353,40\nErgonomic chair              5 x     6.702,37       33.511,85\n--------------------------------------------\nSubtotal ARS                     511.420,05\nVAT 21%                      107.398,21\nTOTAL DUE ARS 618.818,26",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Patagonia Freight LLC",
+   "number": "0003-00009423",
+   "date": "2026-01-06",
+   "currency": "ARS",
+   "subtotal": 511420.05,
+   "discount": 0.0,
+   "vat": 107398.21,
+   "total": 618818.26
+  }
+ },
+ {
+  "id": "F009",
+  "text": "CUYO DISTRIBUTION LLC\nINVOICE A  No. 0002-00052159\nIssue date (dd/mm/yyyy): 01/07/26\nCustomer: Our Company Inc\n--------------------------------------------\nBleach 5 L                   8 x    28.257,09      226.056,72\nNitrile gloves x100          6 x    38.701,24      232.207,44\nCat6 UTP cable (m)          18 x    34.261,88      616.713,84\nWater jug 20 L              17 x    39.425,01      670.225,17\n--------------------------------------------\nSubtotal ARS                   1.745.203,17\nVAT 21%                      366.492,67\nTOTAL DUE ARS 2.111.695,84",
+  "difficulties": [
+   "ambiguous dd/mm date"
+  ],
+  "truth": {
+   "supplier": "Cuyo Distribution LLC",
+   "number": "0002-00052159",
+   "date": "2026-07-01",
+   "currency": "ARS",
+   "subtotal": 1745203.17,
+   "discount": 0.0,
+   "vat": 366492.67,
+   "total": 2111695.84
+  }
+ },
+ {
+  "id": "F010",
+  "text": "PATAGONIA FREIGHT LLC\nINVOICE A  No. 0009-00077957\nIssue date (dd/mm/yyyy): 04/09/2026\nCustomer: Our Company Inc\n--------------------------------------------\nSupport hours                2 x    11.616,23       23.232,46\nNitrile gloves x100         10 x    32.895,53      328.955,30\nFreight service             17 x    36.295,85      617.029,45\n--------------------------------------------\nSubtotal ARS                     969.217,21\nVAT 10.5%                      101.767,81\nTOTAL DUE ARS 1.070.985,02",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Patagonia Freight LLC",
+   "number": "0009-00077957",
+   "date": "2026-09-04",
+   "currency": "ARS",
+   "subtotal": 969217.21,
+   "discount": 0.0,
+   "vat": 101767.81,
+   "total": 1070985.02
+  }
+ },
+ {
+  "id": "F011",
+  "text": "NORTH COFFEE & CATERING\nINVOICE A  No. 0008-00066198\nIssue date (dd/mm/yyyy): 2l/O2/2O26\nCustomer: Our Company Inc\n--------------------------------------------\nBlack toner                 20 x    36.809,22      736.184,40\nCat6 UTP cable (m)          l2 x     3.686,92       44.243,O4\n--------------------------------------------\nSubtotal ARS                     78O.427,44\nDiscount                         -39.O2l,37\nVAT lO.S%                       77.847,64\nTOTAL DUE ARS 8l9.2S3,7l",
+  "difficulties": [
+   "discount",
+   "OCR noise"
+  ],
+  "truth": {
+   "supplier": "North Coffee & Catering",
+   "number": "0008-00066198",
+   "date": "2026-02-21",
+   "currency": "ARS",
+   "subtotal": 780427.44,
+   "discount": 39021.37,
+   "vat": 77847.64,
+   "total": 819253.71
+  }
+ },
+ {
+  "id": "F012",
+  "text": "PATAGONIA FREIGHT LLC\nINVOICE A  No. 0005-00032153\nIssue date (dd/mm/yyyy): 23/04/2026\nCustomer: Our Company Inc\n--------------------------------------------\nSupport hours               14 x    20.954,85      293.367,90\nCat6 UTP cable (m)          13 x    17.834,99      231.854,87\nBleach 5 L                   8 x    28.726,60      229.812,80\nPacking tape                 3 x     2.454,47        7.363,41\n--------------------------------------------\nSubtotal ARS                     762.398,98\nVAT 21%                      160.103,79\nTOTAL DUE ARS 922.502,77",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Patagonia Freight LLC",
+   "number": "0005-00032153",
+   "date": "2026-04-23",
+   "currency": "ARS",
+   "subtotal": 762398.98,
+   "discount": 0.0,
+   "vat": 160103.79,
+   "total": 922502.77
+  }
+ },
+ {
+  "id": "F013",
+  "text": "SOUTH CLEANING CO\nINVOICE A  No. 0009-00039663\nIssue date (dd/mm/yyyy): 03/09/2026\nCustomer: Our Company Inc\n--------------------------------------------\nNitrile gloves x100         11 x     9.730,00      107.030,00\n--------------------------------------------\nSubtotal ARS                     107.030,00\nVAT 10.5%                       11.238,15\nTOTAL DUE ARS 118.268,15",
+  "difficulties": [],
+  "truth": {
+   "supplier": "South Cleaning Co",
+   "number": "0009-00039663",
+   "date": "2026-09-03",
+   "currency": "ARS",
+   "subtotal": 107030.0,
+   "discount": 0.0,
+   "vat": 11238.15,
+   "total": 118268.15
+  }
+ },
+ {
+  "id": "F014",
+  "text": "AUSTRAL PAPER LLC\nINVOICE A  No. 0007-00060388\nIssue date (dd/mm/yyyy): 06/07/2026\nCustomer: Our Company Inc\n--------------------------------------------\nCat6 UTP cable (m)          11 x    17.241,30      189.654,30\nWater jug 20 L               7 x    12.330,43       86.313,01\nA4 paper ream x500          11 x    23.548,58      259.034,38\nNitrile gloves x100         17 x     9.634,74      163.790,58\n--------------------------------------------\nSubtotal ARS                     698.792,27\nVAT 21%                      146.746,38\nTOTAL DUE ARS 845.538,65",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Austral Paper LLC",
+   "number": "0007-00060388",
+   "date": "2026-07-06",
+   "currency": "ARS",
+   "subtotal": 698792.27,
+   "discount": 0.0,
+   "vat": 146746.38,
+   "total": 845538.65
+  }
+ },
+ {
+  "id": "F015",
+  "text": "DELTA PRINT SERVICES\nINVOICE A  No. 0004-00000997\nIssue date (dd/mm/yyyy): 13/08/2026\nCustomer: Our Company Inc\n--------------------------------------------\nCat6 UTP cable (m)           7 x     2.319,44       16.236,08\n--------------------------------------------\nSubtotal ARS                      16.236,08\nDiscount                            -811,80\nVAT 21%                        3.239,10\nTOTAL DUE ARS 18.663,38",
+  "difficulties": [
+   "discount"
+  ],
+  "truth": {
+   "supplier": "Delta Print Services",
+   "number": "0004-00000997",
+   "date": "2026-08-13",
+   "currency": "ARS",
+   "subtotal": 16236.08,
+   "discount": 811.8,
+   "vat": 3239.1,
+   "total": 18663.38
+  }
+ },
+ {
+  "id": "F016",
+  "text": "PAMPAS LOGISTICS INC\nINVOICE A  No. 0001-00086339\nIssue date (dd/mm/yyyy): 26/08/2026\nCustomer: Our Company Inc\n--------------------------------------------\nMonthly maintenance          1 x    17.155,95       17.155,95\nNitrile gloves xlOO         l9 x    3S.793,76      68O.O8l,44\nErgonomic chair             l7 x    37.963,l8      64S.374,O6\nFreight service              7 x    19.237,48      134.662,36\n--------------------------------------------\nSubtotal ARS                   1.477.273,81\nVAT 21%                      310.227,50\nTOTAL DUE ARS l.787.SOl,3l",
+  "difficulties": [
+   "OCR noise"
+  ],
+  "truth": {
+   "supplier": "Pampas Logistics Inc",
+   "number": "0001-00086339",
+   "date": "2026-08-26",
+   "currency": "ARS",
+   "subtotal": 1477273.81,
+   "discount": 0.0,
+   "vat": 310227.5,
+   "total": 1787501.31
+  }
+ },
+ {
+  "id": "F017",
+  "text": "CUYO DISTRIBUTION LLC\nINVOICE A  No. OOO4-OOO472ll\nIssue date (dd/mm/yyyy): 06/09/26\nCustomer: Our Company Inc\n--------------------------------------------\nFreight service              5 x    16,408.18       82,040.90\nFreight service              l x    4O,l44.47       4O,l44.47\n--------------------------------------------\nSubtotal USD                     l22,l8S.37\nVAT 21%                       25,658.93\nTOTAL DUE USD 147,844.30",
+  "difficulties": [
+   "foreign currency",
+   "ambiguous dd/mm date",
+   "OCR noise"
+  ],
+  "truth": {
+   "supplier": "Cuyo Distribution LLC",
+   "number": "0004-00047211",
+   "date": "2026-09-06",
+   "currency": "USD",
+   "subtotal": 122185.37,
+   "discount": 0.0,
+   "vat": 25658.93,
+   "total": 147844.3
+  }
+ },
+ {
+  "id": "F018",
+  "text": "PAMPAS LOGISTICS INC\nINVOICE A  No. 0005-00089061\nIssue date (dd/mm/yyyy): 06/08/2026\nCustomer: Our Company Inc\n--------------------------------------------\nBlack toner                 11 x    37.365,59      411.021,49\nCat6 UTP cable (m)          17 x     2.589,12       44.015,04\nMonthly maintenance         20 x    24.338,72      486.774,40\nPacking tape                 6 x     1.730,22       10.381,32\n--------------------------------------------\nSubtotal ARS                     952.192,25\nVAT 21%                      199.960,37\nTOTAL DUE ARS 1.106.066,52   (corrected by hand: 1.152.152,62)",
+  "difficulties": [
+   "total corrected by hand"
+  ],
+  "truth": {
+   "supplier": "Pampas Logistics Inc",
+   "number": "0005-00089061",
+   "date": "2026-08-06",
+   "currency": "ARS",
+   "subtotal": 952192.25,
+   "discount": 0.0,
+   "vat": 199960.37,
+   "total": 1152152.62
+  }
+ },
+ {
+  "id": "F019",
+  "text": "CUYO DISTRIBUTION LLC\nINVOICE A  No. 0009-00065603\nIssue date (dd/mm/yyyy): 21/03/2026\nCustomer: Our Company Inc\n--------------------------------------------\nMonthly maintenance          6 x    27.920,89      167.525,34\n--------------------------------------------\nSubtotal ARS                     167.525,34\nVAT 21%                       35.180,32\nTOTAL DUE ARS 202.705,66",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Cuyo Distribution LLC",
+   "number": "0009-00065603",
+   "date": "2026-03-21",
+   "currency": "ARS",
+   "subtotal": 167525.34,
+   "discount": 0.0,
+   "vat": 35180.32,
+   "total": 202705.66
+  }
+ },
+ {
+  "id": "F020",
+  "text": "NORTH COFFEE & CATERING\nINVOICE A  No. 0001-00087221\nIssue date (dd/mm/yyyy): 01/07/2026\nCustomer: Our Company Inc\n--------------------------------------------\nBleach 5 L                  12 x    41.028,44      492.341,28\nCat6 UTP cable (m)          13 x    27.292,13      354.797,69\nMonthly maintenance         18 x    30.496,57      548.938,26\n--------------------------------------------\nSubtotal ARS                   1.396.077,23\nVAT 21%                      293.176,22\nTOTAL DUE ARS 1.689.253,45",
+  "difficulties": [],
+  "truth": {
+   "supplier": "North Coffee & Catering",
+   "number": "0001-00087221",
+   "date": "2026-07-01",
+   "currency": "ARS",
+   "subtotal": 1396077.23,
+   "discount": 0.0,
+   "vat": 293176.22,
+   "total": 1689253.45
+  }
+ },
+ {
+  "id": "F021",
+  "text": "CUYO DISTRIBUTION LLC\nINVOICE A  No. 0008-00034798\nIssue date (dd/mm/yyyy): 27/07/2026\nCustomer: Our Company Inc\n--------------------------------------------\nBlack toner                  6 x    11.410,07       68.460,42\nErgonomic chair             20 x    29.126,39      582.527,80\nBleach 5 L                   7 x    29.564,42      206.950,94\n--------------------------------------------\nSubtotal ARS                     857.939,16\nVAT 21%                      180.167,22\nTOTAL DUE ARS 1.079.630,64   (corrected by hand: 1.038.106,38)",
+  "difficulties": [
+   "total corrected by hand"
+  ],
+  "truth": {
+   "supplier": "Cuyo Distribution LLC",
+   "number": "0008-00034798",
+   "date": "2026-07-27",
+   "currency": "ARS",
+   "subtotal": 857939.16,
+   "discount": 0.0,
+   "vat": 180167.22,
+   "total": 1038106.38
+  }
+ },
+ {
+  "id": "F022",
+  "text": "CUYO DISTRIBUTION LLC\nINVOICE A  No. 0008-00088191\nIssue date (dd/mm/yyyy): 08/09/2026\nCustomer: Our Company Inc\n--------------------------------------------\nFreight service              5 x    33.102,89      165.514,45\nNitrile gloves x100         13 x     7.089,46       92.162,98\nA4 paper ream x500           1 x    35.168,38       35.168,38\nWater jug 20 L              10 x    26.278,52      262.785,20\n--------------------------------------------\nSubtotal ARS                     555.631,01\nVAT 10.5%                       58.341,26\nTOTAL DUE ARS 638.531,16   (corrected by hand: 613.972,27)",
+  "difficulties": [
+   "total corrected by hand"
+  ],
+  "truth": {
+   "supplier": "Cuyo Distribution LLC",
+   "number": "0008-00088191",
+   "date": "2026-09-08",
+   "currency": "ARS",
+   "subtotal": 555631.01,
+   "discount": 0.0,
+   "vat": 58341.26,
+   "total": 613972.27
+  }
+ },
+ {
+  "id": "F023",
+  "text": "CUYO DISTRIBUTION LLC\nINVOICE A  No. 0004-00083057\nIssue date (dd/mm/yyyy): 11/02/2026\nCustomer: Our Company Inc\n--------------------------------------------\nWater jug 20 L              15 x    27.253,27      408.799,05\nSupport hours                3 x    39.045,07      117.135,21\nBlack toner                 12 x    29.791,13      357.493,56\nSupport hours               15 x    35.847,03      537.705,45\n--------------------------------------------\nSubtotal ARS                   1.421.133,27\nVAT 21%                      298.437,99\nTOTAL DUE ARS 1.719.571,26",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Cuyo Distribution LLC",
+   "number": "0004-00083057",
+   "date": "2026-02-11",
+   "currency": "ARS",
+   "subtotal": 1421133.27,
+   "discount": 0.0,
+   "vat": 298437.99,
+   "total": 1719571.26
+  }
+ },
+ {
+  "id": "F024",
+  "text": "PATAGONIA FREIGHT LLC\nINVOICE A  No. 0003-00037189\nIssue date (dd/mm/yyyy): 17/06/2026\nCustomer: Our Company Inc\n--------------------------------------------\nPacking tape                 7 x    23,517.04      164,619.28\nNitrile gloves x100         16 x    34,886.30      558,180.80\nBleach S L                   7 x     2,22l.S4       lS,SSO.78\n--------------------------------------------\nSubtotal USD                     738,350.86\nVAT 2l%                      lSS,OS3.68\nTOTAL DUE USD 929,140.72   (corrected by hand: 893,404.54)",
+  "difficulties": [
+   "foreign currency",
+   "total corrected by hand",
+   "OCR noise"
+  ],
+  "truth": {
+   "supplier": "Patagonia Freight LLC",
+   "number": "0003-00037189",
+   "date": "2026-06-17",
+   "currency": "USD",
+   "subtotal": 738350.86,
+   "discount": 0.0,
+   "vat": 155053.68,
+   "total": 893404.54
+  }
+ },
+ {
+  "id": "F025",
+  "text": "SOUTH CLEANING CO\nINVOICE A  No. 0004-00057556\nIssue date (dd/mm/yyyy): 2l/O8/2O26\nCustomer: Our Company Inc\n--------------------------------------------\nPacking tape                l2 x     7.lO4,2O       8S.2SO,4O\n--------------------------------------------\nSubtotal ARS                      85.250,40\nVAT 10.5%                        8.951,29\nTOTAL DUE ARS 94.2Ol,69",
+  "difficulties": [
+   "OCR noise"
+  ],
+  "truth": {
+   "supplier": "South Cleaning Co",
+   "number": "0004-00057556",
+   "date": "2026-08-21",
+   "currency": "ARS",
+   "subtotal": 85250.4,
+   "discount": 0.0,
+   "vat": 8951.29,
+   "total": 94201.69
+  }
+ },
+ {
+  "id": "F026",
+  "text": "AUSTRAL PAPER LLC\nINVOICE A  No. 0003-00001356\nIssue date (dd/mm/yyyy): 02/08/2026\nCustomer: Our Company Inc\n--------------------------------------------\nFreight service             11 x    31.402,56      345.428,16\n--------------------------------------------\nSubtotal ARS                     345.428,16\nVAT 21%                       72.539,91\nTOTAL DUE ARS 417.968,07",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Austral Paper LLC",
+   "number": "0003-00001356",
+   "date": "2026-08-02",
+   "currency": "ARS",
+   "subtotal": 345428.16,
+   "discount": 0.0,
+   "vat": 72539.91,
+   "total": 417968.07
+  }
+ },
+ {
+  "id": "F027",
+  "text": "NORTH COFFEE & CATERING\nINVOICE A  No. 0002-00031791\nIssue date (dd/mm/yyyy): 23/04/2026\nCustomer: Our Company Inc\n--------------------------------------------\nPacking tape                13 x     6.205,03       80.665,39\n--------------------------------------------\nSubtotal ARS                      80.665,39\nVAT 21%                       16.939,73\nTOTAL DUE ARS 97.605,12",
+  "difficulties": [],
+  "truth": {
+   "supplier": "North Coffee & Catering",
+   "number": "0002-00031791",
+   "date": "2026-04-23",
+   "currency": "ARS",
+   "subtotal": 80665.39,
+   "discount": 0.0,
+   "vat": 16939.73,
+   "total": 97605.12
+  }
+ },
+ {
+  "id": "F028",
+  "text": "SOUTH CLEANING CO\nINVOICE A  No. 0001-00052962\nIssue date (dd/mm/yyyy): 14/01/2026\nCustomer: Our Company Inc\n--------------------------------------------\nErgonomic chair             10 x    43.212,47      432.124,70\n--------------------------------------------\nSubtotal ARS                     432.124,70\nVAT 21%                       90.746,19\nTOTAL DUE ARS 522.870,89",
+  "difficulties": [],
+  "truth": {
+   "supplier": "South Cleaning Co",
+   "number": "0001-00052962",
+   "date": "2026-01-14",
+   "currency": "ARS",
+   "subtotal": 432124.7,
+   "discount": 0.0,
+   "vat": 90746.19,
+   "total": 522870.89
+  }
+ },
+ {
+  "id": "F029",
+  "text": "ANDES HARDWARE INC\nINVOICE A  No. 0002-00063799\nIssue date (dd/mm/yyyy): 10/01/2026\nCustomer: Our Company Inc\n--------------------------------------------\nBleach 5 L                   9 x    24.253,92      218.285,28\nNitrile gloves x100         10 x    15.865,97      158.659,70\nPacking tape                16 x    29.794,42      476.710,72\n--------------------------------------------\nSubtotal ARS                     853.655,70\nVAT 10.5%                       89.633,85\nTOTAL DUE ARS 943.289,55",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Andes Hardware Inc",
+   "number": "0002-00063799",
+   "date": "2026-01-10",
+   "currency": "ARS",
+   "subtotal": 853655.7,
+   "discount": 0.0,
+   "vat": 89633.85,
+   "total": 943289.55
+  }
+ },
+ {
+  "id": "F030",
+  "text": "DELTA PRINT SERVICES\nINVOICE A  No. 0006-00057002\nIssue date (dd/mm/yyyy): 02/08/2026\nCustomer: Our Company Inc\n--------------------------------------------\nBlack toner                  9 x    30.056,37      270.507,33\nBleach 5 L                   8 x     2.968,98       23.751,84\nSupport hours               14 x    23.459,52      328.433,28\nBlack toner                 16 x    10.433,89      166.942,24\n--------------------------------------------\nSubtotal ARS                     789.634,69\nVAT 21%                      165.823,28\nTOTAL DUE ARS 955.457,97",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Delta Print Services",
+   "number": "0006-00057002",
+   "date": "2026-08-02",
+   "currency": "ARS",
+   "subtotal": 789634.69,
+   "discount": 0.0,
+   "vat": 165823.28,
+   "total": 955457.97
+  }
+ },
+ {
+  "id": "F031",
+  "text": "PLATA SUPPLIES LLC\nINVOICE A  No. 0009-00049202\nIssue date (dd/mm/yyyy): 15/04/2026\nCustomer: Our Company Inc\n--------------------------------------------\nCat6 UTP cable (m)           6 x    39.186,52      235.119,12\nMonthly maintenance          1 x    30.283,88       30.283,88\n--------------------------------------------\nSubtotal ARS                     265.403,00\nVAT 21%                       55.734,63\nTOTAL DUE ARS 321.137,63",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Plata Supplies LLC",
+   "number": "0009-00049202",
+   "date": "2026-04-15",
+   "currency": "ARS",
+   "subtotal": 265403.0,
+   "discount": 0.0,
+   "vat": 55734.63,
+   "total": 321137.63
+  }
+ },
+ {
+  "id": "F032",
+  "text": "AUSTRAL PAPER LLC\nINVOICE A  No. 0003-00094573\nIssue date (dd/mm/yyyy): 10/06/2026\nCustomer: Our Company Inc\n--------------------------------------------\nBleach 5 L                   5 x    15.320,13       76.600,65\nPacking tape                 5 x    13.519,38       67.596,90\nSupport hours                3 x    39.651,90      118.955,70\n--------------------------------------------\nSubtotal ARS                     263.153,25\nVAT 21%                       55.262,18\nTOTAL DUE ARS 318.415,43",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Austral Paper LLC",
+   "number": "0003-00094573",
+   "date": "2026-06-10",
+   "currency": "ARS",
+   "subtotal": 263153.25,
+   "discount": 0.0,
+   "vat": 55262.18,
+   "total": 318415.43
+  }
+ },
+ {
+  "id": "F033",
+  "text": "PATAGONIA FREIGHT LLC\nINVOICE A  No. 0005-00016972\nIssue date (dd/mm/yyyy): 21/07/2026\nCustomer: Our Company Inc\n--------------------------------------------\nBlack toner                  l x    4O.296,S7       4O.296,S7\nErgonomic chair              7 x    22.869,S6      l6O.O86,92\n--------------------------------------------\nSubtotal ARS                     2OO.383,49\nVAT 2l%                       42.O8O,S3\nTOTAL DUE ARS 242.464,O2",
+  "difficulties": [
+   "OCR noise"
+  ],
+  "truth": {
+   "supplier": "Patagonia Freight LLC",
+   "number": "0005-00016972",
+   "date": "2026-07-21",
+   "currency": "ARS",
+   "subtotal": 200383.49,
+   "discount": 0.0,
+   "vat": 42080.53,
+   "total": 242464.02
+  }
+ },
+ {
+  "id": "F034",
+  "text": "PATAGONIA FREIGHT LLC\nINVOICE A  No. 0006-00091992\nIssue date (dd/mm/yyyy): 27/05/2026\nCustomer: Our Company Inc\n--------------------------------------------\nPacking tape                15 x    39.352,55      590.288,25\nFreight service             14 x    34.696,88      485.756,32\nSupport hours               18 x     5.920,91      106.576,38\n--------------------------------------------\nSubtotal ARS                   1.182.620,95\nDiscount                        -118.262,10\nVAT 21%                      223.515,36\nTOTAL DUE ARS 1.287.874,21",
+  "difficulties": [
+   "discount"
+  ],
+  "truth": {
+   "supplier": "Patagonia Freight LLC",
+   "number": "0006-00091992",
+   "date": "2026-05-27",
+   "currency": "ARS",
+   "subtotal": 1182620.95,
+   "discount": 118262.1,
+   "vat": 223515.36,
+   "total": 1287874.21
+  }
+ },
+ {
+  "id": "F035",
+  "text": "CUYO DISTRIBUTION LLC\nINVOICE A  No. 0001-00003812\nIssue date (dd/mm/yyyy): 23/04/2026\nCustomer: Our Company Inc\n--------------------------------------------\nPacking tape                 6 x    36.977,97      221.867,82\nFreight service              6 x       960,52        5.763,12\n--------------------------------------------\nSubtotal ARS                     227.630,94\nDiscount                         -22.763,09\nVAT 21%                       43.022,25\nTOTAL DUE ARS 247.890,10",
+  "difficulties": [
+   "discount"
+  ],
+  "truth": {
+   "supplier": "Cuyo Distribution LLC",
+   "number": "0001-00003812",
+   "date": "2026-04-23",
+   "currency": "ARS",
+   "subtotal": 227630.94,
+   "discount": 22763.09,
+   "vat": 43022.25,
+   "total": 247890.1
+  }
+ },
+ {
+  "id": "F036",
+  "text": "AUSTRAL PAPER LLC\nINVOICE A  No. OOOS-OOO97788\nIssue date (dd/mm/yyyy): l3/O7/2O26\nCustomer: Our Company Inc\n--------------------------------------------\nWater jug 20 L               6 x    27.643,94      165.863,64\nCat6 UTP cable (m)           4 x     8.482,45       33.929,80\nSupport hours               lO x    l9.O24,92      l9O.249,2O\n--------------------------------------------\nSubtotal ARS                     390.042,64\nVAT 21%                       81.908,95\nTOTAL DUE ARS 471.951,59",
+  "difficulties": [
+   "OCR noise"
+  ],
+  "truth": {
+   "supplier": "Austral Paper LLC",
+   "number": "0005-00097788",
+   "date": "2026-07-13",
+   "currency": "ARS",
+   "subtotal": 390042.64,
+   "discount": 0.0,
+   "vat": 81908.95,
+   "total": 471951.59
+  }
+ },
+ {
+  "id": "F037",
+  "text": "*** DUPLICATE - NOT VALID AS ORIGINAL ***\nAUSTRAL PAPER LLC\nINVOICE A  No. 0003-00071931\nIssue date (dd/mm/yyyy): 18/08/2026\nCustomer: Our Company Inc\n--------------------------------------------\nSupport hours               20 x    20.170,92      403.418,40\nA4 paper ream x500          13 x    41.092,54      534.203,02\n--------------------------------------------\nSubtotal ARS                     937.621,42\nVAT 21%                      196.900,50\nTOTAL DUE ARS 1.134.521,92",
+  "difficulties": [
+   "duplicate"
+  ],
+  "truth": {
+   "supplier": "Austral Paper LLC",
+   "number": "0003-00071931",
+   "date": "2026-08-18",
+   "currency": "ARS",
+   "subtotal": 937621.42,
+   "discount": 0.0,
+   "vat": 196900.5,
+   "total": 1134521.92
+  }
+ },
+ {
+  "id": "F038",
+  "text": "PLATA SUPPLIES LLC\nINVOICE A  No. 0008-00098273\nIssue date (dd/mm/yyyy): 28/07/2026\nCustomer: Our Company Inc\n--------------------------------------------\nThermal labels               5 x    32.701,84      163.509,20\nA4 paper ream x500           3 x    39.320,69      117.962,07\nBleach 5 L                   3 x    26.178,05       78.534,15\n--------------------------------------------\nSubtotal ARS                     360.005,42\nVAT 21%                       75.601,14\nTOTAL DUE ARS 435.606,56",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Plata Supplies LLC",
+   "number": "0008-00098273",
+   "date": "2026-07-28",
+   "currency": "ARS",
+   "subtotal": 360005.42,
+   "discount": 0.0,
+   "vat": 75601.14,
+   "total": 435606.56
+  }
+ },
+ {
+  "id": "F039",
+  "text": "PAMPAS LOGISTICS INC\nINVOICE A  No. 0004-00031495\nIssue date (dd/mm/yyyy): 17/01/2026\nCustomer: Our Company Inc\n--------------------------------------------\nBlack toner                  5 x     7.850,33       39.251,65\nErgonomic chair             11 x    25.476,06      280.236,66\nMonthly maintenance         13 x    24.550,54      319.157,02\n--------------------------------------------\nSubtotal ARS                     638.645,33\nVAT 21%                      134.115,52\nTOTAL DUE ARS 772.760,85",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Pampas Logistics Inc",
+   "number": "0004-00031495",
+   "date": "2026-01-17",
+   "currency": "ARS",
+   "subtotal": 638645.33,
+   "discount": 0.0,
+   "vat": 134115.52,
+   "total": 772760.85
+  }
+ },
+ {
+  "id": "F040",
+  "text": "PAMPAS LOGISTICS INC\nINVOICE A  No. 0003-00034783\nIssue date (dd/mm/yyyy): 17/03/2026\nCustomer: Our Company Inc\n--------------------------------------------\nFreight service              7 x    31,115.70      217,809.90\nMonthly maintenance         11 x    28,022.23      308,244.53\nSupport hours               16 x    24,417.46      390,679.36\nCat6 UTP cable (m)           9 x     9,799.09       88,191.81\n--------------------------------------------\nSubtotal USD                   1,004,925.60\nVAT 21%                      211,034.38\nTOTAL DUE USD 1,215,959.98",
+  "difficulties": [
+   "foreign currency"
+  ],
+  "truth": {
+   "supplier": "Pampas Logistics Inc",
+   "number": "0003-00034783",
+   "date": "2026-03-17",
+   "currency": "USD",
+   "subtotal": 1004925.6,
+   "discount": 0.0,
+   "vat": 211034.38,
+   "total": 1215959.98
+  }
+ },
+ {
+  "id": "F041",
+  "text": "DELTA PRINT SERVICES\nINVOICE A  No. 0009-00072648\nIssue date (dd/mm/yyyy): 18/03/2026\nCustomer: Our Company Inc\n--------------------------------------------\nThermal labels               9 x     4.645,57       41.810,13\nWater jug 20 L               4 x    38.267,70      153.070,80\n--------------------------------------------\nSubtotal ARS                     194.880,93\nVAT 21%                       40.925,00\nTOTAL DUE ARS 235.805,93",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Delta Print Services",
+   "number": "0009-00072648",
+   "date": "2026-03-18",
+   "currency": "ARS",
+   "subtotal": 194880.93,
+   "discount": 0.0,
+   "vat": 40925.0,
+   "total": 235805.93
+  }
+ },
+ {
+  "id": "F042",
+  "text": "SOUTH CLEANING CO\nINVOICE A  No. 0004-00007822\nIssue date (dd/mm/yyyy): 21/07/2026\nCustomer: Our Company Inc\n--------------------------------------------\nPacking tape                13 x    12.335,75      160.364,75\nSupport hours                6 x    19.861,05      119.166,30\nA4 paper ream x500          10 x    43.607,01      436.070,10\nErgonomic chair              7 x    40.217,73      281.524,11\n--------------------------------------------\nSubtotal ARS                     997.125,26\nVAT 21%                      209.396,30\nTOTAL DUE ARS 1.206.521,56",
+  "difficulties": [],
+  "truth": {
+   "supplier": "South Cleaning Co",
+   "number": "0004-00007822",
+   "date": "2026-07-21",
+   "currency": "ARS",
+   "subtotal": 997125.26,
+   "discount": 0.0,
+   "vat": 209396.3,
+   "total": 1206521.56
+  }
+ },
+ {
+  "id": "F043",
+  "text": "NORTH COFFEE & CATERING\nINVOICE A  No. 0001-00088248\nIssue date (dd/mm/yyyy): 17/02/2026\nCustomer: Our Company Inc\n--------------------------------------------\nThermal labels               2 x    12,455.21       24,910.42\nNitrile gloves x100          8 x    38,975.11      311,800.88\nBlack toner                 11 x    29,759.65      327,356.15\nCat6 UTP cable (m)           6 x    34,874.53      209,247.18\n--------------------------------------------\nSubtotal USD                     873,314.63\nVAT 21%                      183,396.07\nTOTAL DUE USD 1,056,710.70",
+  "difficulties": [
+   "foreign currency"
+  ],
+  "truth": {
+   "supplier": "North Coffee & Catering",
+   "number": "0001-00088248",
+   "date": "2026-02-17",
+   "currency": "USD",
+   "subtotal": 873314.63,
+   "discount": 0.0,
+   "vat": 183396.07,
+   "total": 1056710.7
+  }
+ },
+ {
+  "id": "F044",
+  "text": "AUSTRAL PAPER LLC\nINVOICE A  No. 0003-00013013\nIssue date (dd/mm/yyyy): 22/04/2026\nCustomer: Our Company Inc\n--------------------------------------------\nErgonomic chair             10 x    21.297,68      212.976,80\nA4 paper ream x500           6 x     7.254,48       43.526,88\nWater jug 20 L              13 x    29.255,82      380.325,66\nBleach 5 L                   6 x    18.645,75      111.874,50\n--------------------------------------------\nSubtotal ARS                     748.703,84\nVAT 10.5%                       78.613,90\nTOTAL DUE ARS 827.317,74",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Austral Paper LLC",
+   "number": "0003-00013013",
+   "date": "2026-04-22",
+   "currency": "ARS",
+   "subtotal": 748703.84,
+   "discount": 0.0,
+   "vat": 78613.9,
+   "total": 827317.74
+  }
+ },
+ {
+  "id": "F045",
+  "text": "SOUTH CLEANING CO\nINVOICE A  No. 0008-00052223\nIssue date (dd/mm/yyyy): 03/06/2026\nCustomer: Our Company Inc\n--------------------------------------------\nThermal labels              13 x    35.966,97      467.570,61\nBleach 5 L                   9 x     4.516,73       40.650,57\nSupport hours               13 x     3.178,71       41.323,23\n--------------------------------------------\nSubtotal ARS                     549.544,41\nDiscount                         -54.954,44\nVAT 21%                      103.863,89\nTOTAL DUE ARS 598.453,86",
+  "difficulties": [
+   "discount"
+  ],
+  "truth": {
+   "supplier": "South Cleaning Co",
+   "number": "0008-00052223",
+   "date": "2026-06-03",
+   "currency": "ARS",
+   "subtotal": 549544.41,
+   "discount": 54954.44,
+   "vat": 103863.89,
+   "total": 598453.86
+  }
+ },
+ {
+  "id": "F046",
+  "text": "PATAGONIA FREIGHT LLC\nINVOICE A  No. 0005-00035618\nIssue date (dd/mm/yyyy): 24/05/2026\nCustomer: Our Company Inc\n--------------------------------------------\nErgonomic chair              8 x    29.279,53      234.236,24\n--------------------------------------------\nSubtotal ARS                     234.236,24\nVAT 21%                       49.189,61\nTOTAL DUE ARS 283.425,85",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Patagonia Freight LLC",
+   "number": "0005-00035618",
+   "date": "2026-05-24",
+   "currency": "ARS",
+   "subtotal": 234236.24,
+   "discount": 0.0,
+   "vat": 49189.61,
+   "total": 283425.85
+  }
+ },
+ {
+  "id": "F047",
+  "text": "SOUTH CLEANING CO\nINVOICE A  No. 0004-00068942\nIssue date (dd/mm/yyyy): 27/07/2026\nCustomer: Our Company Inc\n--------------------------------------------\nMonthly maintenance          7 x    14.636,87      102.458,09\nFreight service             10 x    31.048,74      310.487,40\nA4 paper ream x500           3 x    44.180,97      132.542,91\nBlack toner                  4 x    40.910,45      163.641,80\n--------------------------------------------\nSubtotal ARS                     709.130,20\nVAT 10.5%                       74.458,67\nTOTAL DUE ARS 783.588,87",
+  "difficulties": [],
+  "truth": {
+   "supplier": "South Cleaning Co",
+   "number": "0004-00068942",
+   "date": "2026-07-27",
+   "currency": "ARS",
+   "subtotal": 709130.2,
+   "discount": 0.0,
+   "vat": 74458.67,
+   "total": 783588.87
+  }
+ },
+ {
+  "id": "F048",
+  "text": "NORTH COFFEE & CATERING\nINVOICE A  No. 0007-00093789\nIssue date (dd/mm/yyyy): 17/03/2026\nCustomer: Our Company Inc\n--------------------------------------------\nCat6 UTP cable (m)          12 x    28,590.77      343,089.24\n--------------------------------------------\nSubtotal USD                     343,089.24\nVAT 10.5%                       36,024.37\nTOTAL DUE USD 379,113.61",
+  "difficulties": [
+   "foreign currency"
+  ],
+  "truth": {
+   "supplier": "North Coffee & Catering",
+   "number": "0007-00093789",
+   "date": "2026-03-17",
+   "currency": "USD",
+   "subtotal": 343089.24,
+   "discount": 0.0,
+   "vat": 36024.37,
+   "total": 379113.61
+  }
+ },
+ {
+  "id": "F049",
+  "text": "PAMPAS LOGISTICS INC\nINVOICE A  No. 0007-00036865\nIssue date (dd/mm/yyyy): 24/04/2026\nCustomer: Our Company Inc\n--------------------------------------------\nFreight service              7 x     1.624,13       11.368,91\nPacking tape                 7 x     3.069,67       21.487,69\n--------------------------------------------\nSubtotal ARS                      32.856,60\nVAT 10.5%                        3.449,94\nTOTAL DUE ARS 36.306,54",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Pampas Logistics Inc",
+   "number": "0007-00036865",
+   "date": "2026-04-24",
+   "currency": "ARS",
+   "subtotal": 32856.6,
+   "discount": 0.0,
+   "vat": 3449.94,
+   "total": 36306.54
+  }
+ },
+ {
+  "id": "F050",
+  "text": "PLATA SUPPLIES LLC\nINVOICE A  No. 0007-00041293\nIssue date (dd/mm/yyyy): 02/08/2026\nCustomer: Our Company Inc\n--------------------------------------------\nBleach 5 L                  13 x    19.496,26      253.451,38\nA4 paper ream x500          12 x    44.227,99      530.735,88\n--------------------------------------------\nSubtotal ARS                     784.187,26\nDiscount                         -39.209,36\nVAT 21%                      156.445,36\nTOTAL DUE ARS 901.423,26",
+  "difficulties": [
+   "discount"
+  ],
+  "truth": {
+   "supplier": "Plata Supplies LLC",
+   "number": "0007-00041293",
+   "date": "2026-08-02",
+   "currency": "ARS",
+   "subtotal": 784187.26,
+   "discount": 39209.36,
+   "vat": 156445.36,
+   "total": 901423.26
+  }
+ },
+ {
+  "id": "F051",
+  "text": "DELTA PRINT SERVICES\nINVOICE A  No. 0009-00021185\nIssue date (dd/mm/yyyy): 19/01/2026\nCustomer: Our Company Inc\n--------------------------------------------\nFreight service             11 x    14.354,10      157.895,10\n--------------------------------------------\nSubtotal ARS                     157.895,10\nDiscount                          -7.894,76\nVAT 21%                       31.500,07\nTOTAL DUE ARS 181.500,41",
+  "difficulties": [
+   "discount"
+  ],
+  "truth": {
+   "supplier": "Delta Print Services",
+   "number": "0009-00021185",
+   "date": "2026-01-19",
+   "currency": "ARS",
+   "subtotal": 157895.1,
+   "discount": 7894.76,
+   "vat": 31500.07,
+   "total": 181500.41
+  }
+ },
+ {
+  "id": "F052",
+  "text": "ANDES HARDWARE INC\nINVOICE A  No. 0003-00062527\nIssue date (dd/mm/yyyy): 22/06/2026\nCustomer: Our Company Inc\n--------------------------------------------\nErgonomic chair              3 x    35.888,44      107.665,32\nMonthly maintenance         13 x    21.767,26      282.974,38\nFreight service              3 x    22.269,04       66.807,12\n--------------------------------------------\nSubtotal ARS                     457.446,82\nVAT 21%                       96.063,83\nTOTAL DUE ARS 553.510,65",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Andes Hardware Inc",
+   "number": "0003-00062527",
+   "date": "2026-06-22",
+   "currency": "ARS",
+   "subtotal": 457446.82,
+   "discount": 0.0,
+   "vat": 96063.83,
+   "total": 553510.65
+  }
+ },
+ {
+  "id": "F053",
+  "text": "PATAGONIA FREIGHT LLC\nINVOICE A  No. 0004-00026509\nIssue date (dd/mm/yyyy): 05/04/2026\nCustomer: Our Company Inc\n--------------------------------------------\nA4 paper ream x500          17 x     1.465,49       24.913,33\nFreight service              3 x     7.157,95       21.473,85\n--------------------------------------------\nSubtotal ARS                      46.387,18\nVAT 21%                        9.741,31\nTOTAL DUE ARS 56.128,49",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Patagonia Freight LLC",
+   "number": "0004-00026509",
+   "date": "2026-04-05",
+   "currency": "ARS",
+   "subtotal": 46387.18,
+   "discount": 0.0,
+   "vat": 9741.31,
+   "total": 56128.49
+  }
+ },
+ {
+  "id": "F054",
+  "text": "AUSTRAL PAPER LLC\nINVOICE A  No. 0001-00034953\nIssue date (dd/mm/yyyy): 28/06/2026\nCustomer: Our Company Inc\n--------------------------------------------\nFreight service             14 x    30.472,86      426.620,04\nFreight service             10 x    16.699,18      166.991,80\nMonthly maintenance          7 x    39.174,94      274.224,58\n--------------------------------------------\nSubtotal ARS                     867.836,42\nVAT 21%                      182.245,65\nTOTAL DUE ARS 1.050.082,07",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Austral Paper LLC",
+   "number": "0001-00034953",
+   "date": "2026-06-28",
+   "currency": "ARS",
+   "subtotal": 867836.42,
+   "discount": 0.0,
+   "vat": 182245.65,
+   "total": 1050082.07
+  }
+ },
+ {
+  "id": "F055",
+  "text": "SOUTH CLEANING CO\nINVOICE A  No. 0007-00059418\nIssue date (dd/mm/yyyy): 26/08/2026\nCustomer: Our Company Inc\n--------------------------------------------\nPacking tape                20 x    14.704,99      294.099,80\nNitrile gloves x100         18 x     1.195,23       21.514,14\n--------------------------------------------\nSubtotal ARS                     315.613,94\nVAT 21%                       66.278,93\nTOTAL DUE ARS 381.892,87",
+  "difficulties": [],
+  "truth": {
+   "supplier": "South Cleaning Co",
+   "number": "0007-00059418",
+   "date": "2026-08-26",
+   "currency": "ARS",
+   "subtotal": 315613.94,
+   "discount": 0.0,
+   "vat": 66278.93,
+   "total": 381892.87
+  }
+ },
+ {
+  "id": "F056",
+  "text": "SOUTH CLEANING CO\nINVOICE A  No. 0005-00061692\nIssue date (dd/mm/yyyy): 10/01/26\nCustomer: Our Company Inc\n--------------------------------------------\nPacking tape                 8 x     7.334,35       58.674,80\nThermal labels              18 x     2.673,60       48.124,80\nBleach 5 L                   4 x    42.591,26      170.365,04\nThermal labels              14 x    14.902,45      208.634,30\n--------------------------------------------\nSubtotal ARS                     485.798,94\nVAT 10.5%                       51.008,89\nTOTAL DUE ARS 536.807,83",
+  "difficulties": [
+   "ambiguous dd/mm date"
+  ],
+  "truth": {
+   "supplier": "South Cleaning Co",
+   "number": "0005-00061692",
+   "date": "2026-01-10",
+   "currency": "ARS",
+   "subtotal": 485798.94,
+   "discount": 0.0,
+   "vat": 51008.89,
+   "total": 536807.83
+  }
+ },
+ {
+  "id": "F057",
+  "text": "CUYO DISTRIBUTION LLC\nINVOICE A  No. 0008-00074237\nIssue date (dd/mm/yyyy): 03/06/2026\nCustomer: Our Company Inc\n--------------------------------------------\nNitrile gloves x100         14 x    16.607,19      232.500,66\nBleach 5 L                   8 x    36.710,59      293.684,72\nThermal labels               6 x    43.895,40      263.372,40\nCat6 UTP cable (m)          20 x    22.471,95      449.439,00\n--------------------------------------------\nSubtotal ARS                   1.238.996,78\nVAT 21%                      260.189,32\nTOTAL DUE ARS 1.499.186,10",
+  "difficulties": [],
+  "truth": {
+   "supplier": "Cuyo Distribution LLC",
+   "number": "0008-00074237",
+   "date": "2026-06-03",
+   "currency": "ARS",
+   "subtotal": 1238996.78,
+   "discount": 0.0,
+   "vat": 260189.32,
+   "total": 1499186.1
+  }
+ },
+ {
+  "id": "F058",
+  "text": "CUYO DISTRIBUTION LLC\nINVOICE A  No. 0009-00042329\nIssue date (dd/mm/yyyy): 26/O6/2O26\nCustomer: Our Company Inc\n--------------------------------------------\nCat6 UTP cable (m)          l3 x    l4.Sl8,38      l88.738,94\n--------------------------------------------\nSubtotal ARS                     l88.738,94\nVAT 21%                       39.635,18\nTOTAL DUE ARS 228.374,l2",
+  "difficulties": [
+   "OCR noise"
+  ],
+  "truth": {
+   "supplier": "Cuyo Distribution LLC",
+   "number": "0009-00042329",
+   "date": "2026-06-26",
+   "currency": "ARS",
+   "subtotal": 188738.94,
+   "discount": 0.0,
+   "vat": 39635.18,
+   "total": 228374.12
+  }
+ },
+ {
+  "id": "F059",
+  "text": "ANDES HARDWARE INC\nINVOICE A  No. OOOl-OOO74S34\nIssue date (dd/mm/yyyy): O6/O4/2O26\nCustomer: Our Company Inc\n--------------------------------------------\nCat6 UTP cable (m)           8 x    31,522.08      252,176.64\n--------------------------------------------\nSubtotal USD                     2S2,l76.64\nDiscount                         -25,217.66\nVAT lO.S%                       23,83O.69\nTOTAL DUE USD 26O,82l.26   (corrected by hand: 2SO,789.67)",
+  "difficulties": [
+   "discount",
+   "foreign currency",
+   "total corrected by hand",
+   "OCR noise"
+  ],
+  "truth": {
+   "supplier": "Andes Hardware Inc",
+   "number": "0001-00074534",
+   "date": "2026-04-06",
+   "currency": "USD",
+   "subtotal": 252176.64,
+   "discount": 25217.66,
+   "vat": 23830.69,
+   "total": 250789.67
+  }
+ },
+ {
+  "id": "F060",
+  "text": "CUYO DISTRIBUTION LLC\nINVOICE A  No. 0005-00073265\nIssue date (dd/mm/yyyy): 24/07/2026\nCustomer: Our Company Inc\n--------------------------------------------\nCat6 UTP cable (m)          10 x    35,148.31      351,483.10\nPacking tape                17 x     5,039.40       85,669.80\n--------------------------------------------\nSubtotal USD                     437,152.90\nVAT 21%                       91,802.11\nTOTAL DUE USD 528,955.01",
+  "difficulties": [
+   "foreign currency"
+  ],
+  "truth": {
+   "supplier": "Cuyo Distribution LLC",
+   "number": "0005-00073265",
+   "date": "2026-07-24",
+   "currency": "USD",
+   "subtotal": 437152.9,
+   "discount": 0.0,
+   "vat": 91802.11,
+   "total": 528955.01
+  }
+ }
+]

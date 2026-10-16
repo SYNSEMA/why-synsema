@@ -1,0 +1,30 @@
+FILE ./cases/02-llm-written-analytics/data/books.csv (1000 rows)
+  columns: title:text, category:text, price:text, stars:text, stock:text, upc:text, url:text
+  sample: [{"title": "A Light in the Attic", "category": "Poetry", "price": "51.77", "stars": "3", "stock": "22", "upc": "a897fe39b1053632", "url": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html"}, {"title": "Tipping the Velvet", "category": "Historical Fiction", "price": "53.74", "stars": "1", "stock": "20", "upc": "90fa61229261140a", "url": "https://books.toscrape.com/catalogue/tipping-the-velvet_999/index.html"}]
+FILE ./cases/02-llm-written-analytics/data/demand_validation.csv (28 rows)
+  columns: date:text, actual:text, model:text, baseline:text
+  sample: [{"date": "2026-07-04", "actual": "82341", "model": "106131", "baseline": "135247"}, {"date": "2026-07-05", "actual": "81803", "model": "114794", "baseline": "114955"}]
+FILE ./cases/02-llm-written-analytics/data/game_prices.csv (38 rows)
+  columns: title:text, metacritic:text, stores:text, cheapest:text, cheapest_store:text, second_cheapest:text, list_price:text, historical_low:text, gap_to_second_pct:text, discount_pct:text, vs_low_pct:text, franchise:text, edition:text, genre:text
+  sample: [{"title": "The Witcher 3: Wild Hunt  Remastered", "metacritic": "92", "stores": "2", "cheapest": "24.99", "cheapest_store": "GOG", "second_cheapest": "49.99", "list_price": "49.99", "historical_low": "7.09", "gap_to_second_pct": "100.0", "discount_pct": "50.0", "vs_low_pct": "252.5", "franchise": "The Witcher", "edition": "remaster", "genre": "RPG"}, {"title": "Silver Pines", "metacritic": "86", "stores": "10", "cheapest": "18.66", "cheapest_store": "GameBillet", "second_cheapest": "18.74", "list_price": "35.98", "historical_low": "18.66", "gap_to_second_pct": "0.4", "discount_pct": "48.1", "vs_low_pct": "0.0", "franchise": "Silver Pines", "edition": "base", "genre": "Aventura/Terror"}]
+FILE ./cases/02-llm-written-analytics/data/steam_regional_prices.csv (154 rows)
+  columns: steamAppID:text, country:text, currency:text, local_price:text, price_usd:text, index:text
+  sample: [{"steamAppID": "292030", "country": "us", "currency": "USD", "local_price": "49.99", "price_usd": "49.99", "index": "100.0"}, {"steamAppID": "2333000", "country": "us", "currency": "USD", "local_price": "22.49", "price_usd": "22.49", "index": "100.0"}]
+FILE ./cases/02-llm-written-analytics/data/taxi_hour_borough.parquet (191 rows)
+  columns: hour:number, borough:text, trips:number, mph:number, usd_per_mile:number, tip_pct:number
+  sample: [{"hour": 0, "borough": "Bronx", "trips": 7153, "mph": 20.31170884990038, "usd_per_mile": 3.838245861996671, "tip_pct": 7.961160700289777}, {"hour": 0, "borough": "Brooklyn", "trips": 76446, "mph": 15.759539354731501, "usd_per_mile": 4.653259883290135, "tip_pct": 16.157599677721336}]
+FILE ./cases/02-llm-written-analytics/data/taxi_monthly.parquet (12 rows)
+  columns: month:text, trips:number, revenue:number, mph:number
+  sample: [{"month": "2025-08", "trips": 3326912, "revenue": 92174982.9500285, "mph": 13.334236121430154}, {"month": "2025-09", "trips": 3982135, "revenue": 114225013.53999957, "mph": 11.727988527827238}]
+FILE ./cases/02-llm-written-analytics/data/taxi_top_routes.parquet (50 rows)
+  columns: PULocationID:number, DOLocationID:number, trips:number, minutes_mean:number, miles_mean:number, usd_mean:number, origin_borough:text, origin:text, destination_borough:text, destination:text
+  sample: [{"PULocationID": 237, "DOLocationID": 236, "trips": 290867, "minutes_mean": 7.606189827882405, "miles_mean": 1.0271350479772545, "usd_mean": 16.02623174853143, "origin_borough": "Manhattan", "origin": "Upper East Side South", "destination_borough": "Manhattan", "destination": "Upper East Side North"}, {"PULocationID": 236, "DOLocationID": 237, "trips": 247775, "minutes_mean": 8.425170551239354, "miles_mean": 1.0157749571183483, "usd_mean": 16.546688810412963, "origin_borough": "Manhattan", "origin": "Upper East Side North", "destination_borough": "Manhattan", "destination": "Upper East Side South"}]
+FILE ./cases/02-llm-written-analytics/data/teacher_labels.csv (523 rows)
+  columns: title:text, truth:text, teacher:text, confidence:text, source:text
+  sample: [{"title": "Benjamin Franklin: An American Life", "truth": "nonfiction", "teacher": "nonfiction", "confidence": "1.0", "source": "jev"}, {"title": "For the Love: Fighting for Grace in a World of Impossible Standards", "truth": "nonfiction", "teacher": "nonfiction", "confidence": "0.86", "source": "jev"}]
+FILE ./cases/02-llm-written-analytics/data/trades.jsonl (15349 rows)
+  columns: exchange:text, pair:text, price:number, size:number, t:number
+  sample: [{"exchange": "binance", "pair": "BTC", "price": 82597.75, "size": 0.00015, "t": 1792149397.688}, {"exchange": "binance", "pair": "ETH", "price": 2484.12, "size": 0.08, "t": 1792149397.732}]
+FILE ./cases/02-llm-written-analytics/data/weather_summary.csv (40 rows)
+  columns: city:text, temp_mean:text, temp_min:text, temp_max:text, rain_total_mm:text, wind_p95:text, missing_hours:text
+  sample: [{"city": "Quito", "temp_mean": "12.186929223744244", "temp_min": "5.9", "temp_max": "22.0", "rain_total_mm": "3232.0999999999344", "wind_p95": "11.2", "missing_hours": "0"}, {"city": "San Jos\u00e9", "temp_mean": "20.5998972602739", "temp_min": "14.4", "temp_max": "29.6", "rain_total_mm": "2665.899999999963", "wind_p95": "14.2", "missing_hours": "0"}]

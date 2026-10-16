@@ -1,0 +1,270 @@
+{
+ "id": "llm-written-analytics",
+ "orden": 2,
+ "fuente": "cases/02-llm-written-analytics",
+ "grafico": {
+  "tipo": "barras_h",
+  "unidad": "ms",
+  "datos": [
+   {
+    "etiqueta": {
+     "en": "Python inside Docker",
+     "es": "Python dentro de Docker"
+    },
+    "valor": 1987,
+    "synsema": false
+   },
+   {
+    "etiqueta": {
+     "en": "Synsema run_program",
+     "es": "Synsema run_program"
+    },
+    "valor": 34,
+    "synsema": true
+   }
+  ]
+ },
+ "en": {
+  "titulo": "Running the code an LLM wrote",
+  "numero": "58×",
+  "numero_texto": "faster sandbox: 34 ms in Synsema, 1,987 ms in Docker",
+  "titular": "An LLM writes the analysis, Synsema runs it sandboxed in 34 ms. Docker needs 2 s.",
+  "pregunta": "When an LLM writes the code that answers a question about your data, what can that code do once you run it?",
+  "grafico_titulo": "Time to run the generated code safely (median of 10 questions)",
+  "grafico_nota": "Both sandboxes: no network, data read-only, time limit. Unsandboxed Python and DuckDB run in 29 ms but can read your keys.",
+  "problema": [
+   "Most AI analytics products work the same way: the model writes Python or SQL, and something runs it. That code was written by a model that can make mistakes or be steered by the data it reads.",
+   "Teams either run it in-process with every permission, or pay for a container sandbox on every question."
+  ],
+  "construimos": [
+   "Ten questions over ten scattered files (CSV, Parquet, JSONL), with the correct answers computed separately.",
+   "The same model and the same schema for three variants: the model writes Synsema (run with run_program and a permission ceiling), pandas (run with exec, and again inside Docker) or DuckDB SQL.",
+   "Four escape tests against every executor: read .env, reach the network, overwrite the data, run forever."
+  ],
+  "tablas": [
+   {
+    "titulo": "Answers and cost",
+    "columnas": [
+     "",
+     "Synsema",
+     "Python / pandas",
+     "SQL / DuckDB"
+    ],
+    "filas": [
+     [
+      "Correct answers",
+      "+|10 / 10",
+      "+|10 / 10",
+      "+|10 / 10"
+     ],
+     [
+      "Attempts needed (minimum 10)",
+      "-|11",
+      "+|10",
+      "+|10"
+     ],
+     [
+      "Run time, median",
+      "+|34 ms, sandboxed",
+      "~|29 ms unsandboxed · 1,987 ms in Docker",
+      "~|29 ms unsandboxed"
+     ]
+    ]
+   },
+   {
+    "titulo": "What the generated code can do",
+    "columnas": [
+     "Test",
+     "Python exec",
+     "DuckDB default",
+     "DuckDB restricted",
+     "Synsema run_program"
+    ],
+    "filas": [
+     [
+      "Read .env (your API keys)",
+      "-|allowed",
+      "-|allowed",
+      "+|blocked",
+      "+|blocked"
+     ],
+     [
+      "Reach the network",
+      "-|allowed",
+      "-|allowed",
+      "+|blocked",
+      "+|blocked"
+     ],
+     [
+      "Overwrite the data",
+      "-|allowed",
+      "-|allowed",
+      "-|allowed",
+      "+|blocked"
+     ],
+     [
+      "Infinite loop",
+      "-|cannot be stopped",
+      "~|not tested",
+      "~|not tested",
+      "+|killed at 3 s"
+     ]
+    ]
+   }
+  ],
+  "por_que": [
+   "run_program starts a child process of the same binary under a ceiling that is the intersection with the parent's permissions. The child can never exceed it.",
+   "The generated code even asked for the network and for .env with require. The ceiling trimmed them: declared but above the host ceiling.",
+   "No container, no image, no daemon. A sandboxed answer costs about as much as an unsandboxed one."
+  ],
+  "limites": [
+   "Models know Synsema less than Python or SQL: 1 extra attempt across 10 questions and higher LLM latency, because the language guide travels with every request.",
+   "Restricted DuckDB is a good choice when SQL is enough, but allowed_directories also allows writing, and it does not stop endless queries by itself.",
+   "SQL covers aggregations well. For multi-step logic, Python or Synsema read more naturally."
+  ]
+ },
+ "es": {
+  "titulo": "Ejecutar el código que escribió un LLM",
+  "numero": "58×",
+  "numero_texto": "más rápido el sandbox: 34 ms en Synsema, 1987 ms en Docker",
+  "titular": "Un LLM escribe el análisis y Synsema lo ejecuta aislado en 34 ms. Docker necesita 2 s.",
+  "pregunta": "Cuando un LLM escribe el código que responde una pregunta sobre tus datos, ¿qué puede hacer ese código cuando lo ejecutás?",
+  "grafico_titulo": "Tiempo para ejecutar el código generado de forma segura (mediana de 10 preguntas)",
+  "grafico_nota": "Los dos sandboxes: sin red, datos en solo lectura, tiempo límite. Python y DuckDB sin aislamiento tardan 29 ms, pero pueden leer tus claves.",
+  "problema": [
+   "Casi todos los productos de analítica con IA funcionan igual: el modelo escribe Python o SQL y algo lo ejecuta. Ese código lo escribió un modelo que puede equivocarse o dejarse llevar por los datos que lee.",
+   "Los equipos lo corren en el mismo proceso con todos los permisos, o pagan un sandbox en contenedor en cada pregunta."
+  ],
+  "construimos": [
+   "Diez preguntas sobre diez archivos dispersos (CSV, Parquet, JSONL), con las respuestas correctas calculadas aparte.",
+   "El mismo modelo y el mismo esquema para tres variantes: el modelo escribe Synsema (corrido con run_program y un techo de permisos), pandas (corrido con exec, y de nuevo dentro de Docker) o SQL de DuckDB.",
+   "Cuatro pruebas de escape contra cada ejecutor: leer .env, salir a la red, sobrescribir los datos, correr para siempre."
+  ],
+  "tablas": [
+   {
+    "titulo": "Respuestas y costo",
+    "columnas": [
+     "",
+     "Synsema",
+     "Python / pandas",
+     "SQL / DuckDB"
+    ],
+    "filas": [
+     [
+      "Respuestas correctas",
+      "+|10 / 10",
+      "+|10 / 10",
+      "+|10 / 10"
+     ],
+     [
+      "Intentos necesarios (mínimo 10)",
+      "-|11",
+      "+|10",
+      "+|10"
+     ],
+     [
+      "Tiempo de ejecución, mediana",
+      "+|34 ms, aislado",
+      "~|29 ms sin aislar · 1987 ms en Docker",
+      "~|29 ms sin aislar"
+     ]
+    ]
+   },
+   {
+    "titulo": "Qué puede hacer el código generado",
+    "columnas": [
+     "Prueba",
+     "Python exec",
+     "DuckDB por defecto",
+     "DuckDB restringido",
+     "Synsema run_program"
+    ],
+    "filas": [
+     [
+      "Leer .env (tus claves de API)",
+      "-|permitido",
+      "-|permitido",
+      "+|bloqueado",
+      "+|bloqueado"
+     ],
+     [
+      "Salir a la red",
+      "-|permitido",
+      "-|permitido",
+      "+|bloqueado",
+      "+|bloqueado"
+     ],
+     [
+      "Sobrescribir los datos",
+      "-|permitido",
+      "-|permitido",
+      "-|permitido",
+      "+|bloqueado"
+     ],
+     [
+      "Bucle infinito",
+      "-|no se puede detener",
+      "~|no se probó",
+      "~|no se probó",
+      "+|cortado a los 3 s"
+     ]
+    ]
+   }
+  ],
+  "por_que": [
+   "run_program arranca un proceso hijo del mismo binario bajo un techo que es la intersección con los permisos del padre. El hijo nunca lo puede superar.",
+   "El código generado hasta pidió la red y .env con require. El techo se los recortó: declarados, pero por encima del techo.",
+   "Sin contenedor, sin imagen, sin daemon. Una respuesta aislada cuesta casi lo mismo que una sin aislar."
+  ],
+  "limites": [
+   "Los modelos conocen Synsema menos que Python o SQL: 1 intento más en 10 preguntas y más latencia del LLM, porque la guía del lenguaje viaja en cada pedido.",
+   "DuckDB restringido es buena opción cuando alcanza con SQL, pero allowed_directories también habilita escribir y no corta por sí solo las consultas eternas.",
+   "SQL resuelve bien las agregaciones. Para lógica de varios pasos, Python o Synsema se leen más natural."
+  ]
+ },
+ "codigo": [
+  {
+   "lado": "otro",
+   "archivo": "cases/02-llm-written-analytics/comparison/compare.py",
+   "desde": "def run_py_in_process",
+   "hasta": "return False, f\"{type(e).__name__}",
+   "titulo": {
+    "en": "The usual way: exec in the same process",
+    "es": "Lo habitual: exec en el mismo proceso"
+   },
+   "nota": {
+    "en": "The generated code gets every permission the process has.",
+    "es": "El código generado recibe todos los permisos del proceso."
+   }
+  },
+  {
+   "lado": "synsema",
+   "archivo": "cases/02-llm-written-analytics/analyst.syn",
+   "desde": "let CEILING be",
+   "hasta": "let PREAMBLE be",
+   "titulo": {
+    "en": "Synsema: the permission ceiling",
+    "es": "Synsema: el techo de permisos"
+   },
+   "nota": {
+    "en": "Read this folder and print. Nothing else, whatever the code asks for.",
+    "es": "Leer esta carpeta e imprimir. Nada más, pida lo que pida el código."
+   }
+  },
+  {
+   "lado": "synsema",
+   "archivo": "cases/02-llm-written-analytics/analyst.syn",
+   "desde": "let run be run_program",
+   "hasta": "let run be run_program",
+   "titulo": {
+    "en": "Synsema: run with ceiling and time limit",
+    "es": "Synsema: ejecutar con techo y tiempo límite"
+   },
+   "nota": {
+    "en": "A child process of the same binary. No container.",
+    "es": "Un proceso hijo del mismo binario. Sin contenedor."
+   }
+  }
+ ],
+ "reproducir": "synsema run cases/02-llm-written-analytics/ask.syn -- \"Which city had the most rain?\"\nuv run --with polars python cases/02-llm-written-analytics/comparison/truth.py\nuv run --with pandas --with duckdb --with pyarrow python cases/02-llm-written-analytics/comparison/compare.py\nuv run --with duckdb --with pandas python cases/02-llm-written-analytics/comparison/security.py"
+}

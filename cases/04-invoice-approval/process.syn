@@ -1,0 +1,47 @@
+intent: "Extract invoices with an LLM, check the sums, judge with Jev (calibrated probabilities) and decide what is approved alone and what a person reviews"
+
+use "./lib/invoices.syn" as inv
+require net("api.deepseek.com")
+require net("api.z.ai")
+require net("api.minimax.io")
+require net("api.typesafe.ai")
+require secret("DEEPSEEK_API_KEY")
+require secret("GLM_API_KEY")
+require secret("MINIMAX_API_KEY")
+require secret("JEV_API_KEY")
+require file.read("./cases/04-invoice-approval/data/*")
+require file.write("./cases/04-invoice-approval/results/*")
+require time
+
+let THRESHOLD be inv.JEV_THRESHOLD
+let process be inv.process
+
+let invoices be json_decode(read_file("./cases/04-invoice-approval/data/invoices.json"))
+let t0 be now()
+let res be parallel_map(process, invoices, 8)
+let ok be where(res, (x) => x.extracted != nothing)
+print(`[{round_to(now() - t0, 1)} s] {length(ok)}/{length(res)} invoices extracted · correct {length(where(ok, (x) => x.correct))} ({round_to(length(where(ok, (x) => x.correct)) / length(ok) * 100, 1)}%)`)
+
+-- Rules for approving without a human. What matters: what is approved alone is right AND what a person must
+-- see (duplicates, hand-corrected totals) is never approved alone.
+task rule(name, test)
+    let auto be where(ok, test)
+    let to_review be where(ok, (x) => x.must_review)
+    let escaped be where(auto, (x) => x.must_review)
+    let misread be where(auto, (x) => not x.correct)
+    let false_alarms be where(ok, (x) => not test(x) and not x.must_review and x.correct)
+    give {"rule": name, "approved_alone": length(auto), "pct_auto": round_to(length(auto) / length(ok) * 100, 1),
+          "reviews_caught": `{length(to_review) - length(escaped)}/{length(to_review)}`, "paid_unreviewed": apply((x) => x.id, escaped),
+          "misread_approved": length(misread), "false_alarms": length(false_alarms)}
+
+let jev_ok be (x) => x.jev_total >= THRESHOLD and x.jev_date >= THRESHOLD and x.jev_supplier >= THRESHOLD and x.jev_ambiguous < 0.5
+let table be [
+    rule("A. LLM's own confidence >= 0.9 (the usual way, no judge)", (x) => x.llm_confidence >= 0.9),
+    rule("B. Arithmetic check only", (x) => x.sums_ok),
+    rule("C. Jev only (>= 0.85 per field and ambiguous < 0.5)", jev_ok),
+    rule("D. Arithmetic + Jev", (x) => x.sums_ok and jev_ok(x))]
+each t in table
+    print(`  {t.rule}: approves {t.approved_alone} ({t.pct_auto}%) · catches {t.reviews_caught} of those to review · would pay unreviewed {t.paid_unreviewed} · misread approved {t.misread_approved} · false alarms {t.false_alarms}`)
+
+write_file("./cases/04-invoice-approval/results/results.json", json_encode(res))
+write_file("./cases/04-invoice-approval/results/rules.json", json_encode(table))
