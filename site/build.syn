@@ -8,8 +8,8 @@ require file.read("./site/content/cases")
 require file.read("./site/content/cases/*")
 require file.read("./site/assets/*")
 require file.read("./site/fonts/*")
-require file.read("./cases/*")
-require file.write("./site/dist/*")
+require file.read("./cases/**")
+require file.write("./site/dist/**")
 
 let R be "./site/"
 let OUT be R + "dist/"
