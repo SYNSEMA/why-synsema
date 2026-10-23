@@ -4,6 +4,7 @@ intent: "Serve the Why Synsema? site (site/dist) with Synsema"
 -- Production:  synsema serve site/serve.syn --bind 0.0.0.0 --domain why.synsema.dev --tls-auto
 --              (see README: subdomain DNS pointing to the server, ports 80 and 443 open)
 require serve(8120)
+require file.read("./site/dist/**")   -- every static mount below serves part of site/dist
 
 serve on 8120
     rate_limit 300 per minute
